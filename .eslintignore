@@ -1,0 +1,6 @@
+**/*.d.ts
+jest.config.js
+.eslintrc.js
+coverage
+dist
+build

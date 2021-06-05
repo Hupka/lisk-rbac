@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+		"target": "es2019",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"newLine": "lf",
+		"importHelpers": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"pretty": true,
+		"removeComments": true,
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"strict": true,
+		"composite": true,
+		"declaration": true,
+		"noImplicitAny": false,
+		"rootDir": "./src",
+		"outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,        /* Disallow inconsistently-cased references to the same file. */
+    "noEmitOnError": true
+  },
+  "include": ["src/**/*.ts"]
+}

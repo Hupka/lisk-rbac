@@ -1,0 +1,12 @@
+{
+  "ignore": [
+    "./src/**/*.spec.ts"
+  ],
+  "verbose": true,
+  "events": {
+    "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
+  },
+  "watch": ["./src/**/*.ts"],
+  "signal": "SIGINT",
+  "ext": "ts,json"
+}

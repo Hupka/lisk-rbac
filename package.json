@@ -1,0 +1,72 @@
+{
+  "name": "lisk-rbac",
+  "version": "1.0.0",
+  "description": "This module contains a lightweight implementation of a RBAC authorization mechanism.",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist/* && tsc",
+    "build:test": "tsc --noUnusedParameters --noUnusedLocals --project tsconfig.json",
+    "coverage": "TS_NODE_TRANSPILE_ONLY=true NODE_ENV=test jest --coverage",
+    "test": "NODE_ENV=test jest --watch",
+    "test:no-watch": "NODE_ENV=test jest",
+    "test:ci": "TS_NODE_TRANSPILE_ONLY=true NODE_ENV=test DEBUG_PRINT_LIMIT=0 jest --ci --reporters=default --reporters=jest-junit --coverage",
+    "lint": "eslint --ext .js,.ts .",
+    "lint:fix": "eslint --fix --ext .js,.ts .",
+    "start": "lite-server"
+  },
+  "// script explanation": {
+    "build": "Compile the source files using tsc",
+    "build:test": "Compile the source files with options specific to the test environment",
+    "coverage": "Run tests with coverage details",
+    "test": "Run automated test suite",
+    "lint": "Lint source & test files",
+    "lint:fix": "Lint source & test files and apply automatical fixes",
+    "lint:sonar": "Lint and output to eslint-report.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hupka/lisk-rbac.git"
+  },
+  "keywords": [
+    "blockchain",
+    "lisk",
+    "nodejs",
+    "javascript",
+    "typescript",
+    "rbac"
+  ],
+  "author": "Adrian Hupka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Hupka/lisk-rbac/issues"
+  },
+  "homepage": "https://github.com/Hupka/lisk-rbac#readme",
+  "dependencies": {
+    "lisk-sdk": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "12.20.6",
+    "@typescript-eslint/eslint-plugin": "4.25.0",
+    "@typescript-eslint/parser": "4.25.0",
+    "eslint": "^7.27.0",
+    "eslint-config-lisk-base": "2.0.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-eslint-comments": "3.2.0",
+    "eslint-plugin-import": "2.23.4",
+    "eslint-plugin-prefer-arrow": "1.2.3",
+    "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-sonarjs": "0.7.0",
+    "husky": "4.3.8",
+    "jest": "26.6.3",
+    "jest-extended": "^0.11.5",
+    "jest-watch-typeahead": "0.6.3",
+    "lite-server": "^2.5.4",
+    "prettier": "2.3.0",
+    "ts-jest": "26.5.6",
+    "typescript": "4.2.3"
+  },
+  "directories": {
+    "test": "test"
+  }
+}

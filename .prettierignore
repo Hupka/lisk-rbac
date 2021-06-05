@@ -1,0 +1,9 @@
+# Build directory
+dist/
+
+# Definition files
+*.d.ts
+
+# NPM files
+package.json
+package-lock.json

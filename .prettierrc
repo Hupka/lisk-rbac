@@ -1,0 +1,20 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "arrowParens": "avoid",
+  "overrides": [
+    {
+      "files": "*.yaml",
+      "options": {
+        "trailingComma": "none"
+      }
+    },
+    {
+      "files": "*.yml",
+      "options": {
+        "trailingComma": "none"
+      }
+    }
+  ]
+}
