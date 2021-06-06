@@ -51,7 +51,6 @@ export class RBAC {
   /**
      * Adds new role to rules.
      * @public
-     * @version 1.1.X
      * @param role user role
      * @param resource resource to access
      * @param operation allowed operation
@@ -73,7 +72,6 @@ export class RBAC {
   /**
    * Remove rule(s).
    * @public
-   * @version 1.1.X
    * @param role user role
    * @param resource resource to access
    * @param operation operation
@@ -107,7 +105,6 @@ export class RBAC {
   /**
    * Checks if user can perform operation without checking when condition.
    * @public
-   * @version 1.X.X
    * @param role user role
    * @param resource resource to access
    * @param operation operation on resource
@@ -118,7 +115,6 @@ export class RBAC {
   /**
    * Checks if user can perform operation with checking when condition if it's provided.
    * @public
-   * @version 1.X.X
    * @param role user role
    * @param resource resource to access
    * @param operation operation on resource
