@@ -29,6 +29,7 @@ module.exports = {
 		'@typescript-eslint/member-delimiter-style': ['error'],
 		'@typescript-eslint/member-ordering': ['error'],
 		'@typescript-eslint/no-extraneous-class': ['error'],
+		"@typescript-eslint/no-namespace": 'off',
 		'@typescript-eslint/no-unnecessary-boolean-literal-compare': ['error'],
 		'@typescript-eslint/no-unnecessary-qualifier': ['error'],
 		'@typescript-eslint/no-unnecessary-type-arguments': ['error'],
