@@ -2,7 +2,7 @@
   "name": "lisk-rbac",
   "version": "1.0.0",
   "description": "This module contains a lightweight implementation of a RBAC authorization mechanism.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rm -rf dist/* && tsc",
     "build:test": "tsc --noUnusedParameters --noUnusedLocals --project tsconfig.json",
@@ -35,14 +35,15 @@
     "typescript",
     "rbac"
   ],
-  "author": "Adrian Hupka",
+  "author": "Adrian Hupka <hupka.adrian@gmail.com",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Hupka/lisk-rbac/issues"
   },
   "homepage": "https://github.com/Hupka/lisk-rbac#readme",
   "dependencies": {
-    "lisk-sdk": "^5.1.0"
+    "lisk-sdk": "^5.1.0",
+    "lisk-commander": "^5.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

@@ -4,14 +4,14 @@ import {
   TransactionApplyContext,
   BeforeBlockApplyContext,
   AfterGenesisBlockApplyContext,
-  // GenesisConfig,
+  GenesisConfig,
 } from 'lisk-sdk';
+
+import RBAC from './rbac-algorithm/algorithm';
 
 export class RbacModule extends BaseModule {
   public actions = {
-    // Example below
-    // getBalance: async (params) => this._dataAccess.account.get(params.address).token.balance,
-    // getBlockByID: async (params) => this._dataAccess.blocks.get(params.id),
+    getRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
   };
   public reducers = {
     // Example below
@@ -35,9 +35,22 @@ export class RbacModule extends BaseModule {
   ];
   public id = 7222;
 
-  // public constructor(genesisConfig: GenesisConfig) {
-  //   super(genesisConfig);
-  // }
+  public readonly RBACSolver: RBAC;
+
+  public constructor(genesisConfig: GenesisConfig) {
+    super(genesisConfig);
+
+    // Load "default ruleset" provided as custom parameter in genesisConfig
+    if (
+      Object.prototype.hasOwnProperty.call(genesisConfig, "defaultRBACRuleset")
+      && genesisConfig.defaultRBACRuleset as RBAC.Options
+    ) {
+      const defaultRuleset: RBAC.Options = genesisConfig.defaultRBACRuleset as RBAC.Options
+      this.RBACSolver = new RBAC(defaultRuleset);
+    } else {
+      throw new Error("The application's 'genesisConfig' does not contain a valid value for the key 'defaultRBACRuleset'. The module 'lisk-rbac' could not be loaded.");
+    }
+  }
 
   // Lifecycle hooks
   public async beforeBlockApply(_input: BeforeBlockApplyContext) {

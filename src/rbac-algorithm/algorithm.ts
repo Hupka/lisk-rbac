@@ -6,13 +6,13 @@ import { flatten, mergeRoles } from './algorithm-utils';
 const SEPARATOR = ':';
 
 // eslint-disable-next-line import/export
-export class RBAC {
-  private _rules: RBAC.RoleRules = {};
-  private _rulesCompiled: { [rule: string]: boolean | RBAC.WhenFn } = {};
-  private readonly _refs: RBAC.Refs = {};
+export class RBACEngine {
+  private _rules: RBACEngine.RoleRules = {};
+  private _rulesCompiled: { [rule: string]: boolean | RBACEngine.WhenFn } = {};
+  private readonly _refs: RBACEngine.Refs = {};
   private readonly _memoize: boolean;
 
-  constructor(options: RBAC.Options = {}) {
+  constructor(options: RBACEngine.Options = {}) {
     const { roles = {}, memoize = true } = options;
     this._memoize = memoize;
 
@@ -60,7 +60,7 @@ export class RBAC {
     role: string,
     resource: string,
     operation: string,
-    when?: RBAC.WhenFn
+    when?: RBACEngine.WhenFn
   ): void {
     this._rules[role] = this._rules[role] || {};
     this._rules[role][resource] = this._rules[role][resource] || {};
@@ -103,6 +103,13 @@ export class RBAC {
   }
 
   /**
+   * Get the complete rule set
+   */
+  public getRules(): RBACEngine.RoleRules{
+    return this._rules;
+  }
+
+  /**
    * Checks if user can perform operation without checking when condition.
    * @public
    * @param role user role
@@ -134,7 +141,7 @@ export class RBAC {
     operation: string,
     context?: unknown
   ): boolean | Promise<boolean> {
-    let check: boolean | RBAC.WhenFn = false;
+    let check: boolean | RBACEngine.WhenFn = false;
     const checkWhen = typeof context !== 'undefined';
     const rule = [role, resource, operation].join(SEPARATOR);
     if (this._rulesCompiled.hasOwnProperty(rule)) {
@@ -167,12 +174,12 @@ export class RBAC {
     return Boolean(check);
   }
 
-  private _collectRefs(refs?: RBAC.RoleRules) {
+  private _collectRefs(refs?: RBACEngine.RoleRules) {
     if (typeof refs === 'undefined') {
       return {};
     }
 
-    const refsToCompile: RBAC.ResourceRules = {};
+    const refsToCompile: RBACEngine.ResourceRules = {};
     for (const refRole of Object.keys(refs)) {
       mergeRoles(
         refsToCompile,
@@ -184,7 +191,7 @@ export class RBAC {
   }
 
   private _compile() {
-    const refsToCompile: RBAC.RoleRules = {};
+    const refsToCompile: RBACEngine.RoleRules = {};
     for (const [role, ref] of Object.entries(this._refs)) {
       refsToCompile[role] = refsToCompile[role] || {};
       refsToCompile[role] = this._collectRefs(ref);
@@ -199,19 +206,19 @@ export class RBAC {
 }
 
 // eslint-disable-next-line import/export
-export namespace RBAC {
+export namespace RBACEngine {
   /**
    * Dynamic condition check function.
    */
   export type WhenFn = (context: unknown) => boolean | Promise<boolean>;
   /**
    * Interherence references.
-   * @see {@link RBAC.RoleRules}
+   * @see {@link RBACEngine.RoleRules}
    */
   export interface Refs {
     /**
      * Role rules.
-     * {@link (RBAC:namespace).RoleRules}
+     * {@link (RBACEngine:namespace).RoleRules}
      */
     [roleName: string]: RoleRules;
   }
@@ -222,14 +229,14 @@ export namespace RBAC {
     /**
      * Operation permission.
      * @description `true` if allowed or `function` if need additional dynamic checks
-     * @see {@link RBAC.WhenFn}
+     * @see {@link RBACEngine.WhenFn}
      */
     [operationName: string]: boolean | WhenFn;
   }
   /**
    * Resource operations list.
-   * @type Object<string, {@link RBAC.OperationRules}>
-   * @see {@link RBAC.OperationRules}
+   * @type Object<string, {@link RBACEngine.OperationRules}>
+   * @see {@link RBACEngine.OperationRules}
    */
   export interface ResourceRules {
     /**
@@ -239,8 +246,8 @@ export namespace RBAC {
   }
   /**
    * Role's resources list.
-   * @type Object<string, {@link RBAC.ResourceRules}>
-   * @see {@link RBAC.ResourceRules}
+   * @type Object<string, {@link RBACEngine.ResourceRules}>
+   * @see {@link RBACEngine.ResourceRules}
    */
   export interface RoleRules {
     /**
@@ -265,12 +272,12 @@ export namespace RBAC {
     operation?: string;
     /**
      * Dynamic condition check function.
-     * @see {@link RBAC.WhenFn}
+     * @see {@link RBACEngine.WhenFn}
      */
     when?: WhenFn;
   }
   /**
-   * List of RBAC rules and inherited roles.
+   * List of RBACEngine rules and inherited roles.
    */
   export interface RulesObject {
     /**
@@ -285,7 +292,7 @@ export namespace RBAC {
      *     return ctx.user.id === ctx.obj.creatorId
      *   }
      * }]
-     * @see {@link RBAC.ResourcePermission}
+     * @see {@link RBACEngine.ResourcePermission}
      */
     can: Array<string | ResourcePermission>;
     /**
@@ -294,13 +301,13 @@ export namespace RBAC {
     inherits?: Array<string>;
   }
   /**
-   * RBAC options.
+   * RBACEngine options.
    */
   export interface Options {
     /**
      * List of roles and their permissions.
-     * @type Object<string, {@link RBAC.RulesObject}>
-     * @see {@link RBAC.RulesObject}
+     * @type Object<string, {@link RBACEngine.RulesObject}>
+     * @see {@link RBACEngine.RulesObject}
      */
     roles?: {
       /**
@@ -316,4 +323,4 @@ export namespace RBAC {
   }
 }
 
-export default RBAC;
+export default RBACEngine;
