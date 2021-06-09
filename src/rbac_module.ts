@@ -4,12 +4,15 @@ import {
   TransactionApplyContext,
   BeforeBlockApplyContext,
   AfterGenesisBlockApplyContext,
-  GenesisConfig,
+  GenesisConfig
 } from 'lisk-sdk';
 
 import RBAC from './rbac-algorithm/algorithm';
+import { AssignRoleAsset } from './assets/assign_role';
+import { rbacAccountPropsSchema } from './data/account_props';
 
 export class RbacModule extends BaseModule {
+  
   public actions = {
     getRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
   };
@@ -28,14 +31,17 @@ export class RbacModule extends BaseModule {
     // },
   };
   public name = 'rbac';
-  public transactionAssets = [];
+  public id = 7222;
+  public transactionAssets = [
+    new AssignRoleAsset(),
+  ];
   public events = [
     // Example below
     // 'rbac:newBlock',
   ];
-  public id = 7222;
+  public accountSchema = rbacAccountPropsSchema;
 
-  public readonly RBACSolver: RBAC;
+  private readonly RBACSolver: RBAC;
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
