@@ -1,11 +1,10 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { AssignRoleAssetProps, assignRoleAssetPropsSchema } from '../data/assets/assign_role'
-import { RBACAccountProps } from '../data/account_props'
+import { AssignRoleAssetProps, assignRoleAssetPropsSchema, RBACAccountProps } from '../data'
 
-export class AssignRoleAsset extends BaseAsset {
-	public name = 'AssignRole';
-	public id = 0;
+export class AssignRoleAsset extends BaseAsset<AssignRoleAssetProps> {
+	public name = 'assignrole';
+	public id = 1;
 
 	// Define schema for asset
 	public schema = assignRoleAssetPropsSchema;
@@ -16,11 +15,11 @@ export class AssignRoleAsset extends BaseAsset {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/require-await
 	public async apply({ asset, transaction, stateStore }: ApplyAssetContext<AssignRoleAssetProps>): Promise<void> {
 
 		const sender = await stateStore.account.get<RBACAccountProps>(transaction.senderAddress);
 		sender.rbac.roles = [...sender.rbac.roles, ...asset.roles];
 		await stateStore.account.set(sender.address, sender);
+
 	}
 }

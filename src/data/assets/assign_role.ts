@@ -3,14 +3,14 @@ export interface AssignRoleAssetProps {
 }
 
 export const assignRoleAssetPropsSchema = {
-	$id: 'lisk/rbac/assets/assign-roles',
+	$id: 'rbac/assets/assign-roles',
 	title: 'Assign Roles transaction asset for rbac module',
 	type: 'object',
 	required: ['roles'],
 	properties: {
 		roles: {
-			type: 'array',
 			fieldNumber: 1,
+			type: 'array',
 			items: {
 				dataType: 'bytes',
 			}
