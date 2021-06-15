@@ -4,6 +4,7 @@
   "description": "This module contains a lightweight implementation of a RBAC authorization mechanism.",
   "main": "dist/index.js",
   "scripts": {
+    "prebuild": "if test -d dist; then rm -r dist; fi; rm -f tsconfig.tsbuildinfo; rm -f npm-shrinkwrap.json",
     "build": "rm -rf dist/* && tsc",
     "build:test": "tsc --noUnusedParameters --noUnusedLocals --project tsconfig.json",
     "coverage": "TS_NODE_TRANSPILE_ONLY=true NODE_ENV=test jest --coverage",
@@ -42,8 +43,10 @@
   },
   "homepage": "https://github.com/Hupka/lisk-rbac#readme",
   "dependencies": {
-    "lisk-sdk": "^5.1.0",
     "lisk-commander": "^5.1.0"
+  },
+  "peerDependencies": {
+    "lisk-sdk": "^5.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
