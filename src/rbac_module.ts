@@ -4,15 +4,16 @@ import {
   TransactionApplyContext,
   BeforeBlockApplyContext,
   AfterGenesisBlockApplyContext,
-  GenesisConfig
+  GenesisConfig,
+  StateStore
 } from 'lisk-sdk';
 
+import { rbacAccountPropsSchema, RBACAccountProps } from './data';
 import RBAC from './rbac-algorithm/algorithm';
 import { AssignRoleAsset } from './assets/assign_role';
-import { rbacAccountPropsSchema } from './data/account_props';
 
 export class RbacModule extends BaseModule {
-  
+
   public actions = {
     getRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
   };
@@ -29,12 +30,26 @@ export class RbacModule extends BaseModule {
     // 	const account = await stateStore.account.getOrDefault<TokenAccount>(address);
     // 	return account.token.balance;
     // },
+    getAccountRoles: async (params: Record<string, unknown>, stateStore: StateStore): Promise<Buffer[]> => {
+      const { address } = params;
+      if (!Buffer.isBuffer(address)) {
+        throw new Error('Address must be a buffer');
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const account = await stateStore.account.getOrDefault<RBACAccountProps>(address);
+      return account.rbac.roles;
+    }
+
+    
   };
+
   public name = 'rbac';
   public id = 7222;
+
   public transactionAssets = [
     new AssignRoleAsset(),
   ];
+
   public events = [
     // Example below
     // 'rbac:newBlock',
