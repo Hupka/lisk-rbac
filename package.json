@@ -13,7 +13,7 @@
     "test:ci": "TS_NODE_TRANSPILE_ONLY=true NODE_ENV=test DEBUG_PRINT_LIMIT=0 jest --ci --reporters=default --reporters=jest-junit --coverage",
     "lint": "eslint --ext .js,.ts .",
     "lint:fix": "eslint --fix --ext .js,.ts .",
-    "start": "lite-server"
+    "start:host": "npx ts-node test/test-utils/test-app.ts"
   },
   "// script explanation": {
     "build": "Compile the source files using tsc",
@@ -22,7 +22,8 @@
     "test": "Run automated test suite",
     "lint": "Lint source & test files",
     "lint:fix": "Lint source & test files and apply automatical fixes",
-    "lint:sonar": "Lint and output to eslint-report.json"
+    "lint:sonar": "Lint and output to eslint-report.json",
+    "start:host": "Starts a host application used for development"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,8 @@
     "lisk-sdk": "^5.1.0"
   },
   "devDependencies": {
+    "@liskhq/lisk-cryptography": "^3.1.0",
+    "@liskhq/lisk-framework-dashboard-plugin": "^0.1.1",
     "@types/jest": "^26.0.23",
     "@types/node": "12.20.6",
     "@typescript-eslint/eslint-plugin": "4.25.0",
