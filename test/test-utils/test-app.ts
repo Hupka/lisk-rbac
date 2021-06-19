@@ -23,9 +23,6 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
     mode: 'ws',
     enable: true
   },
-  genesisConfig: {
-    defaultRBACRuleset: DEFAULT_RULE_SET
-  },
   plugins: {
     httpApi: {
       port: 4000,

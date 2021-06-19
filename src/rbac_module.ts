@@ -11,6 +11,8 @@ import {
 import { rbacAccountPropsSchema, RBACAccountProps } from './data';
 import RBAC from './rbac-algorithm/algorithm';
 import { AssignRoleAsset } from './assets/assign_role';
+import { createRuleset, loadRBACRuleset } from './utils';
+import { DEFAULT_PERMISSIONS, DEFAULT_ROLES } from './constants';
 
 export class RbacModule extends BaseModule {
 
@@ -61,16 +63,7 @@ export class RbacModule extends BaseModule {
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
 
-    // Load "default ruleset" provided as custom parameter in genesisConfig
-    if (
-      Object.prototype.hasOwnProperty.call(genesisConfig, "defaultRBACRuleset")
-      && genesisConfig.defaultRBACRuleset as RBAC.Options
-    ) {
-      const defaultRuleset: RBAC.Options = genesisConfig.defaultRBACRuleset as RBAC.Options
-      this.RBACSolver = new RBAC(defaultRuleset);
-    } else {
-      throw new Error("The application's 'genesisConfig' does not contain a valid value for the key 'defaultRBACRuleset'. The module 'lisk-rbac' could not be loaded.");
-    }
+    this.RBACSolver = loadRBACRuleset(createRuleset(DEFAULT_ROLES, DEFAULT_PERMISSIONS, "genesis", BigInt(1)))
   }
 
   // Lifecycle hooks

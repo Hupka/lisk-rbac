@@ -132,6 +132,7 @@ export interface RBACRulesetRecord {
 export interface RBACRulesets {
   rulesets: RBACRulesetRecord[];
   activeVersion: BigInt;
+  latestVersion: BigInt;
 }
 
 export const RBACRulesetPermissionRecordSchema = {
@@ -202,7 +203,7 @@ export const RBACRulesetRecordSchema = {
 export const RBACRulesetsSchema = {
   $id: 'rbac/chainstate/rulesets',
   type: "object",
-  required: ["rulesets"],
+  required: ["rulesets, active_version, latest_version"],
   properties: {
     rulesets: {
       type: "array",
@@ -214,6 +215,10 @@ export const RBACRulesetsSchema = {
     active_version: {
       dataType: "sint64",
       fieldNumber: 2,
+    },
+    latest_version: {
+      dataType: "sint64",
+      fieldNumber: 3,
     }
   }
 }
