@@ -63,7 +63,7 @@ export class RbacModule extends BaseModule {
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
 
-    this.RBACSolver = loadRBACRuleset(createRuleset(DEFAULT_ROLES, DEFAULT_PERMISSIONS, "genesis", BigInt(1)))
+    this.RBACSolver = loadRBACRuleset(createRuleset(DEFAULT_ROLES, DEFAULT_PERMISSIONS, "genesis", BigInt(0)))
   }
 
   // Lifecycle hooks
