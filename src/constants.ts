@@ -1,7 +1,5 @@
 import { RBACPermissionsProps, RBACRolesProps } from "./data";
 
-export const DEFAULT_RULE_SET = { roles: { admin: { can: ['rbac-rules:*'] } } };
-
 export const DEFAULT_ROLES: RBACRolesProps = {
   roles: [
     {
