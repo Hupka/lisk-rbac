@@ -1,6 +1,6 @@
 export interface RBACAccountProps {
 	rbac: {
-		roles: Buffer[];
+		roles: string[];
 	};
 }
 
@@ -13,7 +13,7 @@ export const rbacAccountPropsSchema = {
       fieldNumber: 1,
       type: 'array',
       items: {
-        dataType: 'bytes'
+        dataType: 'string'
       }
     }
   },

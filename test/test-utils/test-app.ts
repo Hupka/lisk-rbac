@@ -2,8 +2,6 @@ import { Application, configDevnet, genesisBlockDevnet, HTTPAPIPlugin, utils } f
 import { DashboardPlugin } from '@liskhq/lisk-framework-dashboard-plugin';
 
 import { RbacModule } from '../../src/rbac_module';
-import { DEFAULT_RULE_SET } from '../../src/constants';
-
 
 // PATCH genesis block for RBAC module
 const updatedGenesisBlock = utils.objects.mergeDeep({}, genesisBlockDevnet);
@@ -23,6 +21,11 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
     mode: 'ws',
     enable: true
   },
+  logger: {
+		fileLogLevel: "info",
+		consoleLogLevel: "info",
+		logFileName: "lisk.log"
+	},
   plugins: {
     httpApi: {
       port: 4000,

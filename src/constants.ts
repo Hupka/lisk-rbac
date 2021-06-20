@@ -10,13 +10,15 @@ export const DEFAULT_ROLES: RBACRolesProps = {
       id: "1",
       name: "rbac_admin",
       description: "Role has permissions to change the RBAC ruleset.",
-      transactionId: Buffer.from("genesis", "utf-8")
+      transactionId: Buffer.from("genesis", "utf-8"),
+      inheritance: []
     },
     {
       id: "2",
       name: "role_membership_admin",
       description: "Role has permissions to assign and remove roles from accounts.",
-      transactionId: Buffer.from("genesis", "utf-8")
+      transactionId: Buffer.from("genesis", "utf-8"),
+      inheritance: []
     },
     {
       id: "3",

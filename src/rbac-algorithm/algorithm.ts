@@ -7,14 +7,19 @@ const SEPARATOR = ':';
 
 // eslint-disable-next-line import/export
 export class RBACEngine {
+  public readonly version: BigInt = BigInt(-1);
   private _rules: RBACEngine.RoleRules = {};
   private _rulesCompiled: { [rule: string]: boolean | RBACEngine.WhenFn } = {};
   private readonly _refs: RBACEngine.Refs = {};
   private readonly _memoize: boolean;
 
-  constructor(options: RBACEngine.Options = {}) {
+  constructor(options: RBACEngine.Options = {}, version?: BigInt) {
     const { roles = {}, memoize = true } = options;
     this._memoize = memoize;
+    
+    if (version) {
+      this.version = version;
+    }
 
     for (const [roleName, permissions] of Object.entries(roles)) {
       if (permissions.can.length !== 0) {

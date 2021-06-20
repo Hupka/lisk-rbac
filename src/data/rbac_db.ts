@@ -4,18 +4,19 @@ export interface RBACRoleRecord {
   id: string;
   name: string;
   description: string;
-  transactionId: string;
-  inheritance?: string[];
+  transactionId: Buffer;
+  inheritance: string[];
 }
 
 export interface RBACRolesProps {
   roles: RBACRoleRecord[];
+  latest: number;
 }
 
 export const RBACRoleRecordSchema = {
   $id: 'rbac/chainstate/roles/record',
   type: "object",
-  required: ["id", "name", "description", "transaction_id"],
+  required: ["id", "name", "description", "transactionId"],
   properties: {
     id: {
       dataType: "string",
@@ -29,8 +30,8 @@ export const RBACRoleRecordSchema = {
       dataType: "string",
       fieldNumber: 3,
     },
-    transaction_id: {
-      dataType: "string",
+    transactionId: {
+      dataType: "bytes",
       fieldNumber: 4,
     },
     inheritance: {
@@ -54,6 +55,10 @@ export const RBACRolesPropsSchema = {
       items: {
         ...RBACRoleRecordSchema,
       },
+    },
+    latest: {
+      dataType: "sint32",
+      fieldNumber: 2,
     }
   }
 }
@@ -64,7 +69,7 @@ export interface RBACPermissionRecord {
   roleId: string;
   resourceName: string;
   operationName: string;
-  transactionId: string;
+  transactionId: Buffer;
 }
 
 export interface RBACPermissionsProps {
@@ -74,22 +79,22 @@ export interface RBACPermissionsProps {
 export const RBACPermissionRecordSchema = {
   $id: 'rbac/chainstate/permissions/record',
   type: "object",
-  required: ["role_id", "resource_name", "operation_name", "transaction_id"],
+  required: ["roleId", "resourceName", "operationName", "transactionId"],
   properties: {
-    role_id: {
+    roleId: {
       dataType: "string",
       fieldNumber: 1,
     },
-    resource_name: {
+    resourceName: {
       dataType: "string",
       fieldNumber: 2,
     },
-    operation_name: {
+    operationName: {
       dataType: "string",
       fieldNumber: 3,
     },
-    transaction_id: {
-      dataType: "string",
+    transactionId: {
+      dataType: "bytes",
       fieldNumber: 4,
     }
   }
@@ -120,13 +125,13 @@ export interface RBACRulesetPermissionRecord {
 export interface RBACRulesetRoleRecord {
   roleId: string;
   can: RBACRulesetPermissionRecord[];
-  inherits?: string[];
+  inherits: string[];
 }
 
 export interface RBACRulesetRecord {
   roles: RBACRulesetRoleRecord[];
   version: BigInt;
-  transactionId: string;
+  transactionId: Buffer;
 }
 
 export interface RBACRulesets {
@@ -154,9 +159,9 @@ export const RBACRulesetPermissionRecordSchema = {
 export const RBACRulesetRoleRecordSchema = {
   $id: 'rbac/chainstate/rulesets/roles/record',
   type: "object",
-  required: ["role_id","can"],
+  required: ["roleId", "can"],
   properties: {
-    role_id: {
+    roleId: {
       dataType: "string",
       fieldNumber: 1,
     },
@@ -180,7 +185,7 @@ export const RBACRulesetRoleRecordSchema = {
 export const RBACRulesetRecordSchema = {
   $id: 'rbac/chainstate/rulesets/record',
   type: "object",
-  required: ["roles", "version", "transaction_id"],
+  required: ["roles", "version", "transactionId"],
   properties: {
     roles: {
       type: "array",
@@ -193,8 +198,8 @@ export const RBACRulesetRecordSchema = {
       dataType: "sint64",
       fieldNumber: 2,
     },
-    transaction_id: {
-      dataType: "string",
+    transactionId: {
+      dataType: "bytes",
       fieldNumber: 3,
     }
   }
@@ -203,7 +208,7 @@ export const RBACRulesetRecordSchema = {
 export const RBACRulesetsSchema = {
   $id: 'rbac/chainstate/rulesets',
   type: "object",
-  required: ["rulesets, active_version, latest_version"],
+  required: ["rulesets", "activeVersion", "latestVersion"],
   properties: {
     rulesets: {
       type: "array",
@@ -212,11 +217,11 @@ export const RBACRulesetsSchema = {
         ...RBACRulesetRecordSchema,
       }
     },
-    active_version: {
+    activeVersion: {
       dataType: "sint64",
       fieldNumber: 2,
     },
-    latest_version: {
+    latestVersion: {
       dataType: "sint64",
       fieldNumber: 3,
     }

@@ -1,8 +1,11 @@
 import { codec, StateStore } from "lisk-sdk";
+import { RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from "./constants";
 
 import {
   RBACPermissionsProps,
+  RBACPermissionsPropsSchema,
   RBACRolesProps,
+  RBACRolesPropsSchema,
   RBACRulesetRecord,
   RBACRulesetRoleRecord,
   RBACRulesets,
@@ -14,7 +17,7 @@ import RBAC from './rbac-algorithm/algorithm';
 export const createRuleset = (
   roleSet: RBACRolesProps,
   permissionSet: RBACPermissionsProps,
-  transactionId: string,
+  transactionId: Buffer,
   version: BigInt
 ): RBACRulesetRecord => {
 
@@ -28,6 +31,7 @@ export const createRuleset = (
     const role: RBACRulesetRoleRecord = {
       roleId: elementRole.id,
       can: [],
+      inherits: []
     };
 
     if (elementRole.inheritance) {
@@ -68,18 +72,69 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
     }
   });
 
-  return new RBAC(loadOptions);
+  const newRBAC = new RBAC(loadOptions, ruleset.version);
+
+  // eslint-disable-next-line no-console
+  console.log(newRBAC.getRules());
+  // eslint-disable-next-line no-console
+  console.log(newRBAC.version);
+
+  return new RBAC(loadOptions, ruleset.version);
 }
 
-
-export const getRBACRulesetsObject = async (
+export const readRBACRulesetsObject = async (
   stateStore: StateStore
 ): Promise<RBACRulesets | undefined> => {
-  const result = await stateStore.chain.get("rbac:rbac_rulesets");
+  const result = await stateStore.chain.get(RBAC_RULESETS_STATESTORE_KEY);
 
   if (!result) {
     return undefined;
   }
 
   return codec.decode<RBACRulesets>(RBACRulesetsSchema, result);
+};
+
+export const writeRBACRulesetsObject = async (
+  stateStore: StateStore,
+  rulesets: RBACRulesets,
+): Promise<void> => {
+  await stateStore.chain.set(RBAC_RULESETS_STATESTORE_KEY, codec.encode(RBACRulesetsSchema, rulesets));
+};
+
+export const readRBACRolesObject = async (
+  stateStore: StateStore
+): Promise<RBACRolesProps | undefined> => {
+  const result = await stateStore.chain.get(RBAC_ROLES_STATESTORE_KEY);
+
+  if (!result) {
+    return undefined;
+  }
+
+  return codec.decode<RBACRolesProps>(RBACRolesPropsSchema, result);
+}
+
+export const writeRBACRolesObject = async (
+  stateStore: StateStore,
+  roles: RBACRolesProps,
+): Promise<void> => {
+  await stateStore.chain.set(RBAC_ROLES_STATESTORE_KEY, codec.encode(RBACRolesPropsSchema, roles));
+};
+
+export const readRBACPermissionsObject = async (
+  stateStore: StateStore
+): Promise<RBACPermissionsProps | undefined> => {
+  const result = await stateStore.chain.get(RBAC_PERMISSIONS_STATESTORE_KEY);
+
+  if (!result) {
+    return undefined;
+  }
+
+  return codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, result);
+}
+
+export const writeRBACPermissionsObject = async (
+  stateStore: StateStore,
+  permissions: RBACPermissionsProps,
+): Promise<void> => {
+  await stateStore.chain.set(RBAC_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
 };

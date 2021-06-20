@@ -1,5 +1,5 @@
 export interface AssignRoleAssetProps {
-	roles: Buffer[];
+	roles: string[];
 }
 
 export const assignRoleAssetPropsSchema = {
@@ -12,7 +12,7 @@ export const assignRoleAssetPropsSchema = {
 			fieldNumber: 1,
 			type: 'array',
 			items: {
-				dataType: 'bytes',
+				dataType: 'string',
 			}
 		}
 	},
