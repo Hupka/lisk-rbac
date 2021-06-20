@@ -4,7 +4,7 @@ import { AssignRoleAssetProps, assignRoleAssetPropsSchema, RBACAccountProps } fr
 
 export class AssignRoleAsset extends BaseAsset<AssignRoleAssetProps> {
 	public name = 'assignrole';
-	public id = 1;
+	public id = 100;
 
 	// Define schema for asset
 	public schema = assignRoleAssetPropsSchema;
