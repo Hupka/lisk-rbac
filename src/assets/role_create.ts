@@ -17,6 +17,8 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
 
     // TODO Validate if role with name already exists
 
+    // TODO Dont except wildcards for now
+
   }
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<CreateRoleAssetProps>): Promise<void> {
@@ -33,7 +35,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
 
     // 2. Do nothing when sender account does not have role with permission roles:create
     if (!hasPermission) {
-      throw new Error(`Account "${transaction.senderAddress.toString()}" does not have sufficient permissions.`);
+      throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions.`);
     }
     // 3. Fetch current set of roles from stateStore
     const roleset = await readRBACRolesObject(stateStore)
