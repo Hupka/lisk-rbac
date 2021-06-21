@@ -1,4 +1,5 @@
 export interface AssignRoleAssetProps {
+	address: string;
 	roles: string[];
 }
 
@@ -8,8 +9,12 @@ export const assignRoleAssetPropsSchema = {
 	type: 'object',
 	required: ['roles'],
 	properties: {
-		roles: {
+		address: {
 			fieldNumber: 1,
+			dataType: 'string',
+		},
+		roles: {
+			fieldNumber: 2,
 			type: 'array',
 			items: {
 				dataType: 'string',
