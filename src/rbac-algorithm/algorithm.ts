@@ -7,7 +7,7 @@ const SEPARATOR = ':';
 
 // eslint-disable-next-line import/export
 export class RBACEngine {
-  public readonly version: BigInt = BigInt(-1);
+  public readonly version: BigInt;
   private _rules: RBACEngine.RoleRules = {};
   private _rulesCompiled: { [rule: string]: boolean | RBACEngine.WhenFn } = {};
   private readonly _refs: RBACEngine.Refs = {};
@@ -17,9 +17,7 @@ export class RBACEngine {
     const { roles = {}, memoize = true } = options;
     this._memoize = memoize;
     
-    if (version) {
-      this.version = version;
-    }
+    this.version = version ?? BigInt(-1);
 
     for (const [roleName, permissions] of Object.entries(roles)) {
       if (permissions.can.length !== 0) {
@@ -110,7 +108,7 @@ export class RBACEngine {
   /**
    * Get the complete rule set
    */
-  public getRules(): RBACEngine.RoleRules{
+  public getRules(): RBACEngine.RoleRules {
     return this._rules;
   }
 
