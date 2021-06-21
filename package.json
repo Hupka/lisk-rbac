@@ -44,6 +44,7 @@
   },
   "homepage": "https://github.com/Hupka/lisk-rbac#readme",
   "dependencies": {
+    "@liskhq/lisk-chain": "^0.3.0",
     "lisk-commander": "^5.1.0"
   },
   "peerDependencies": {
