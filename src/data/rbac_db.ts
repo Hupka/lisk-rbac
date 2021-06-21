@@ -130,14 +130,14 @@ export interface RBACRulesetRoleRecord {
 
 export interface RBACRulesetRecord {
   roles: RBACRulesetRoleRecord[];
-  version: BigInt;
-  transactionId: Buffer;
+  version: number;
+  blockId: Buffer;
 }
 
 export interface RBACRulesets {
   rulesets: RBACRulesetRecord[];
-  activeVersion: BigInt;
-  latestVersion: BigInt;
+  activeVersion: number;
+  latestVersion: number;
 }
 
 export const RBACRulesetPermissionRecordSchema = {
@@ -185,7 +185,7 @@ export const RBACRulesetRoleRecordSchema = {
 export const RBACRulesetRecordSchema = {
   $id: 'rbac/chainstate/rulesets/record',
   type: "object",
-  required: ["roles", "version", "transactionId"],
+  required: ["roles", "version", "blockId"],
   properties: {
     roles: {
       type: "array",
@@ -195,10 +195,10 @@ export const RBACRulesetRecordSchema = {
       }
     },
     version: {
-      dataType: "sint64",
+      dataType: "sint32",
       fieldNumber: 2,
     },
-    transactionId: {
+    blockId: {
       dataType: "bytes",
       fieldNumber: 3,
     }
@@ -218,11 +218,11 @@ export const RBACRulesetsSchema = {
       }
     },
     activeVersion: {
-      dataType: "sint64",
+      dataType: "sint32",
       fieldNumber: 2,
     },
     latestVersion: {
-      dataType: "sint64",
+      dataType: "sint32",
       fieldNumber: 3,
     }
   }
