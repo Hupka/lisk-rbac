@@ -14,7 +14,7 @@ import RBAC from './rbac-algorithm/algorithm';
 import { AssignRoleAsset } from './assets/assign_role';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from './constants';
 import { CreateRoleAsset } from './assets/role_create';
-import { createRuleset, hasPermission, loadRBACRuleset, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
+import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset, readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
 
 export class RbacModule extends BaseModule {
 
@@ -56,16 +56,26 @@ export class RbacModule extends BaseModule {
     hasPermission: async (params: Record<string, unknown>): Promise<boolean> => {
       const { address, resource, operation } = params;
 
-      if (!Buffer.isBuffer(address)) {
-        throw new Error('Address must be a buffer');
+      if (typeof address === 'string' && !isHexString(address)) {
+        throw new Error('Address parameter should be a hex string.');
       }
 
       if (typeof resource !== 'string' || typeof operation !== 'string') {
         throw new Error("Parameters 'resource' and 'operation' need to be of type string");
       }
 
-      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(address);
+      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(Buffer.from(address as string, 'hex'));
       return hasPermission(account, resource, operation, this.RBACSolver);
+    },
+    getAccountRoles: async (params: Record<string, unknown>): Promise<string[]> => {
+      const { address } = params;
+
+      if (typeof address === 'string' && !isHexString(address)) {
+        throw new Error('Address parameter should be a hex string.');
+      }
+
+      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(Buffer.from(address as string, 'hex'));
+      return account.rbac.roles;
     }
   };
   public reducers = {
@@ -90,7 +100,7 @@ export class RbacModule extends BaseModule {
 
       const account = await stateStore.account.get<RBACAccountProps>(address);
       return hasPermission(account, resource, operation, this.RBACSolver);
-    }
+    },
   };
 
   public name = 'rbac';
@@ -105,6 +115,7 @@ export class RbacModule extends BaseModule {
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
+  private readonly assetIDsRequiringRBACReload = ["1"];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
@@ -117,10 +128,40 @@ export class RbacModule extends BaseModule {
     // const generator = await _input.stateStore.account.get<TokenAccount>(generatorAddress);
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async afterBlockApply(_input: AfterBlockApplyContext): Promise<void> {
 
-    // Load active ruleset into RBACSolve; this only happens when ruleset was updated through a transaction in this block
+    // 1. Determine if one of the transactions from the current block belong to this module
+    let RbacReloadRequired = false;
+    for (const transaction of _input.block.payload) {
+      if (transaction.moduleID !== this.id) {
+        continue;
+      }
+      if (this.assetIDsRequiringRBACReload.includes(transaction.assetID.toString())) {
+        RbacReloadRequired = true;
+        break;
+      }
+    }
+
+    // 2. In case there were RBAC admin transactions in this block, reload solver, bump version
+    if (RbacReloadRequired) {
+      const roles = await readRBACRolesObject(_input.stateStore);
+      const permissions = await readRBACPermissionsObject(_input.stateStore);
+
+      if (roles && permissions) {
+        const rulesetsObj = await readRBACRulesetsObject(_input.stateStore);
+        if (rulesetsObj) {
+          // In case activeVersion was set to latestVersion, increment it as well
+          if (rulesetsObj.activeVersion === rulesetsObj.latestVersion) {
+            rulesetsObj.activeVersion += 1;
+          }
+          rulesetsObj.latestVersion += 1;
+          rulesetsObj.rulesets.push(createRulesetRecord(roles, permissions, _input.block.header.id, rulesetsObj.latestVersion));
+          await writeRBACRulesetsObject(_input.stateStore, rulesetsObj)
+        }
+      }
+    }
+
+    // 3. Load active ruleset into RBACSolve; this only happens when ruleset was updated through a transaction in this block
     const rbacRulesets = await readRBACRulesetsObject(_input.stateStore);
     if (rbacRulesets && rbacRulesets.activeVersion !== this.RBACSolver.version) {
       const activeRuleset = rbacRulesets?.rulesets.find((ruleset) => ruleset.version === rbacRulesets?.activeVersion)
@@ -142,8 +183,8 @@ export class RbacModule extends BaseModule {
 
   public async afterGenesisBlockApply(_input: AfterGenesisBlockApplyContext): Promise<void> {
 
-    const genesisRbacRulesetVersion = BigInt(0);
-    const genesisRbacRulesetRecord = createRuleset(DEFAULT_ROLES, DEFAULT_PERMISSIONS, Buffer.from("genesis", "utf-8"), genesisRbacRulesetVersion)
+    const genesisRbacRulesetVersion = 0;
+    const genesisRbacRulesetRecord = createRulesetRecord(DEFAULT_ROLES, DEFAULT_PERMISSIONS, _input.genesisBlock.header.id, genesisRbacRulesetVersion)
 
     // Write first database entries for roles/permissions/rulesets after genesis block
     await writeRBACRolesObject(_input.stateStore, DEFAULT_ROLES);
