@@ -72,14 +72,7 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
       }
     }
   });
-
-  const newRBAC = new RBAC(loadOptions, ruleset.version);
-
-  // eslint-disable-next-line no-console
-  console.log(newRBAC.getRules());
-  // eslint-disable-next-line no-console
-  console.log(newRBAC.version);
-
+  
   return new RBAC(loadOptions, ruleset.version);
 }
 
@@ -153,3 +146,11 @@ export const hasPermission = (
     }
     return false;
 }
+
+export const isHexString = (data: unknown): boolean => {
+	if (typeof data !== 'string') {
+		return false;
+	}
+
+	return data === '' || /^[a-f0-9]+$/i.test(data);
+};
