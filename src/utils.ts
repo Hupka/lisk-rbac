@@ -15,17 +15,17 @@ import {
 } from "./data"
 import RBAC from './rbac-algorithm/algorithm';
 
-export const createRuleset = (
+export const createRulesetRecord = (
   roleSet: RBACRolesProps,
   permissionSet: RBACPermissionsProps,
-  transactionId: Buffer,
-  version: BigInt
+  blockId: Buffer,
+  version: number
 ): RBACRulesetRecord => {
 
   const ruleset: RBACRulesetRecord = {
     roles: [],
-    transactionId,
     version,
+    blockId,
   }
 
   roleSet.roles.forEach(elementRole => {
