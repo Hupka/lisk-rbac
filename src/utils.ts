@@ -1,7 +1,9 @@
 import { codec, StateStore } from "lisk-sdk";
+import { Account } from "@liskhq/lisk-chain"
 import { RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from "./constants";
 
 import {
+  RBACAccountProps,
   RBACPermissionsProps,
   RBACPermissionsPropsSchema,
   RBACRolesProps,
@@ -12,7 +14,6 @@ import {
   RBACRulesetsSchema
 } from "./data"
 import RBAC from './rbac-algorithm/algorithm';
-
 
 export const createRuleset = (
   roleSet: RBACRolesProps,
@@ -138,3 +139,17 @@ export const writeRBACPermissionsObject = async (
 ): Promise<void> => {
   await stateStore.chain.set(RBAC_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
 };
+
+export const hasPermission = (
+  account: Account<RBACAccountProps>, 
+  resource: string, 
+  operation: string,
+  solver: RBAC
+  ): boolean => {
+    for (const role of account.rbac.roles) {
+      if (solver.can(role, resource, operation)) {
+        return true;
+      }
+    }
+    return false;
+}

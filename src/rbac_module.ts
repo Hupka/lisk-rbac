@@ -14,7 +14,7 @@ import RBAC from './rbac-algorithm/algorithm';
 import { AssignRoleAsset } from './assets/assign_role';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from './constants';
 import { CreateRoleAsset } from './assets/role_create';
-import { createRuleset, loadRBACRuleset, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
+import { createRuleset, hasPermission, loadRBACRuleset, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
 
 export class RbacModule extends BaseModule {
 
@@ -53,26 +53,27 @@ export class RbacModule extends BaseModule {
 
       return Promise.resolve(codec.toJSON(RBACRulesetsSchema, rulesets));
     },
+    hasPermission: async (params: Record<string, unknown>): Promise<boolean> => {
+      const { address, resource, operation } = params;
+
+      if (!Buffer.isBuffer(address)) {
+        throw new Error('Address must be a buffer');
+      }
+
+      if (typeof resource !== 'string' || typeof operation !== 'string') {
+        throw new Error("Parameters 'resource' and 'operation' need to be of type string");
+      }
+
+      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(address);
+      return hasPermission(account, resource, operation, this.RBACSolver);
+    }
   };
   public reducers = {
-    // Example below
-    // getBalance: async (
-    // 	params: Record<string, unknown>,
-    // 	stateStore: StateStore,
-    // ): Promise<bigint> => {
-    // 	const { address } = params;
-    // 	if (!Buffer.isBuffer(address)) {
-    // 		throw new Error('Address must be a buffer');
-    // 	}
-    // 	const account = await stateStore.account.getOrDefault<TokenAccount>(address);
-    // 	return account.token.balance;
-    // },
     getAccountRoles: async (params: Record<string, unknown>, stateStore: StateStore): Promise<string[]> => {
       const { address } = params;
       if (!Buffer.isBuffer(address)) {
         throw new Error('Address must be a buffer');
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const account = await stateStore.account.getOrDefault<RBACAccountProps>(address);
       return account.rbac.roles;
     },
@@ -87,15 +88,8 @@ export class RbacModule extends BaseModule {
         throw new Error("Parameters 'resource' and 'operation' need to be of type string");
       }
 
-      const account = await stateStore.account.getOrDefault<RBACAccountProps>(address);
-      const { roles } = account.rbac;
-
-      for (const role of roles) {
-        if (this.RBACSolver.can(role, resource, operation)) {
-          return true;
-        }
-      }
-      return false;
+      const account = await stateStore.account.get<RBACAccountProps>(address);
+      return hasPermission(account, resource, operation, this.RBACSolver);
     }
   };
 
@@ -126,7 +120,7 @@ export class RbacModule extends BaseModule {
   // eslint-disable-next-line @typescript-eslint/require-await
   public async afterBlockApply(_input: AfterBlockApplyContext): Promise<void> {
 
-    // Load active ruleset into RBACSolve; only happens when ruleset was updated through a transaction in this block
+    // Load active ruleset into RBACSolve; this only happens when ruleset was updated through a transaction in this block
     const rbacRulesets = await readRBACRulesetsObject(_input.stateStore);
     if (rbacRulesets && rbacRulesets.activeVersion !== this.RBACSolver.version) {
       const activeRuleset = rbacRulesets?.rulesets.find((ruleset) => ruleset.version === rbacRulesets?.activeVersion)
