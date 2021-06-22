@@ -1,7 +1,28 @@
+export interface RBACAccountRoleItem {
+  id: string;
+  name: string;
+}
+
 export interface RBACAccountProps {
 	rbac: {
-		roles: string[];
+		roles: RBACAccountRoleItem[];
 	};
+}
+
+export const rbacAccountRoleItemSchema = {
+  $id: 'lisk/rbac/role',
+  type: "object",
+  required: ["id", "name"],
+  properties: {
+    id: {
+      dataType: "string",
+      fieldNumber: 1,
+    },
+    name: {
+      dataType: "string",
+      fieldNumber: 2,
+    }
+  }
 }
 
 export const rbacAccountPropsSchema = {
@@ -10,10 +31,10 @@ export const rbacAccountPropsSchema = {
   required: ['roles'],
   properties: {
     roles: {
-      fieldNumber: 1,
-      type: 'array',
+      type: "array",
+      fieldNumber: 2,
       items: {
-        dataType: 'string'
+        ...rbacAccountRoleItemSchema,
       }
     }
   },

@@ -140,7 +140,7 @@ export const hasPermission = (
   solver: RBAC
   ): boolean => {
     for (const role of account.rbac.roles) {
-      if (solver.can(role, resource, operation)) {
+      if (solver.can(role.id, resource, operation)) {
         return true;
       }
     }

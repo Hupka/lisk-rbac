@@ -9,7 +9,7 @@ import {
   codec,
 } from 'lisk-sdk';
 
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACRulesetsSchema, RBACRulesets, } from './data';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACRulesetsSchema, RBACRulesets, RBACAccountRoleItem, } from './data';
 import RBAC from './rbac-algorithm/algorithm';
 import { AssignRoleAsset } from './assets/assign_role';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from './constants';
@@ -67,7 +67,7 @@ export class RbacModule extends BaseModule {
       const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(Buffer.from(address as string, 'hex'));
       return hasPermission(account, resource, operation, this.RBACSolver);
     },
-    getAccountRoles: async (params: Record<string, unknown>): Promise<string[]> => {
+    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => {
       const { address } = params;
 
       if (typeof address === 'string' && !isHexString(address)) {
@@ -79,7 +79,7 @@ export class RbacModule extends BaseModule {
     }
   };
   public reducers = {
-    getAccountRoles: async (params: Record<string, unknown>, stateStore: StateStore): Promise<string[]> => {
+    getAccountRoles: async (params: Record<string, unknown>, stateStore: StateStore): Promise<RBACAccountRoleItem[]> => {
       const { address } = params;
       if (!Buffer.isBuffer(address)) {
         throw new Error('Address must be a buffer');
