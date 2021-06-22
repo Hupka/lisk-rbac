@@ -5,6 +5,10 @@ import { flatten, mergeRoles } from './algorithm-utils';
 
 const SEPARATOR = ':';
 
+/**
+ * Much of the algorithm is credited to https://gitlab.com/m03geek/fast-rbac/-/tree/master. 
+ */
+
 // eslint-disable-next-line import/export
 export class RBACEngine {
   public readonly version: number;
