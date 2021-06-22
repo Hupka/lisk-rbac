@@ -15,8 +15,10 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       throw new Error(`No name for new role included. Setting a name is required when creating a new role.`);
     }
 
-    if (asset.name === "*") {
-      throw new Error(`No wildcards for roles supported yet.`);
+    const regex = new RegExp('[a-zA-Z0-9._%+-]{3,64}$');
+
+    if (!regex.test(asset.name)) {
+      throw new Error("A role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
     }
   }
 
@@ -53,7 +55,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     const newRoleId = rolesList.latest + 1;
     const roleRecord: RBACRoleRecord = {
       id: newRoleId.toString(),
-      name: asset.name,
+      name: asset.name.toLowerCase(),
       description: asset.description ? asset.description : "",
       transactionId: transaction.id,
       inheritance: asset.inheritance,
