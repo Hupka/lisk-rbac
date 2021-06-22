@@ -15,10 +15,9 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       throw new Error(`No name for new role included. Setting a name is required when creating a new role.`);
     }
 
-    // TODO Validate if role with name already exists
-
-    // TODO Dont except wildcards for now
-
+    if (asset.name === "*") {
+      throw new Error(`No wildcards for roles supported yet.`);
+    }
   }
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<CreateRoleAssetProps>): Promise<void> {
@@ -37,15 +36,21 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     if (!hasPermission) {
       throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions.`);
     }
+
     // 3. Fetch current set of roles from stateStore
-    const roleset = await readRBACRolesObject(stateStore)
+    const rolesList = await readRBACRolesObject(stateStore)
 
-    if (!roleset) {
-      return;
+    if (!rolesList) {
+			throw new Error("ERR: no roles list in database");
     }
-    const newRoleId = roleset.latest + 1;
-
-    // 4. Construct new role record object
+    
+    // 4. Verify that role with the same name does not exist yet
+    if (rolesList.roles.find(elem =>  asset.name.toLowerCase() === elem.name.toLowerCase())) {
+      throw new Error("Role already exists in database.");
+    }
+    
+    // 5. Construct new role record object
+    const newRoleId = rolesList.latest + 1;
     const roleRecord: RBACRoleRecord = {
       id: newRoleId.toString(),
       name: asset.name,
@@ -54,10 +59,10 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       inheritance: asset.inheritance,
     }
 
-    // 5. Write new set of roles to stateStore
-    roleset.roles = [...roleset.roles, roleRecord]
-    roleset.latest = newRoleId;
+    // 6. Write new set of roles to stateStore
+    rolesList.roles = [...rolesList.roles, roleRecord]
+    rolesList.latest = newRoleId;
 
-    await writeRBACRolesObject(stateStore, roleset);
+    await writeRBACRolesObject(stateStore, rolesList);
   }
 }
