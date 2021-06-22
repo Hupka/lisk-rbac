@@ -4,7 +4,7 @@ import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from
 import { readRBACRolesObject, writeRBACRolesObject } from '../utils';
 
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
-  public name = 'role:create';
+  public name = 'roles:create';
   public id = 1;
 
   // Define schema for asset
@@ -12,7 +12,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
 
   public validate({ asset }: ValidateAssetContext<CreateRoleAssetProps>): void {
     if (asset.name === "") {
-      throw new Error(`No name for new role included. Setting a name is required when creating a new role.`);
+      throw new Error("No name for new role included. Setting a name is required when creating a new role.");
     }
 
     const regex = new RegExp('[a-zA-Z0-9._%+-]{3,64}$');
