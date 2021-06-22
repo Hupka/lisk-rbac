@@ -18,7 +18,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     const regex = new RegExp('[a-zA-Z0-9._%+-]{3,64}$');
 
     if (!regex.test(asset.name)) {
-      throw new Error("A role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
+      throw new Error("Role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
     }
   }
 
