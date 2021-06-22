@@ -15,6 +15,7 @@ import { AssignRoleAsset } from './assets/assign_role';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from './constants';
 import { CreateRoleAsset } from './assets/role_create';
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset, readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
+import { UpdateRoleAsset } from './assets/role_update';
 
 export class RbacModule extends BaseModule {
 
@@ -108,14 +109,15 @@ export class RbacModule extends BaseModule {
 
   public transactionAssets = [
     new AssignRoleAsset(),
-    new CreateRoleAsset()
+    new CreateRoleAsset(),
+    new UpdateRoleAsset(),
   ];
 
   public events = [];
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = ["1"];
+  private readonly assetIDsRequiringRBACReload = [1,2];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
@@ -136,7 +138,7 @@ export class RbacModule extends BaseModule {
       if (transaction.moduleID !== this.id) {
         continue;
       }
-      if (this.assetIDsRequiringRBACReload.includes(transaction.assetID.toString())) {
+      if (this.assetIDsRequiringRBACReload.includes(transaction.assetID)) {
         RbacReloadRequired = true;
         break;
       }
