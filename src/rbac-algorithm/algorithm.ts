@@ -43,7 +43,7 @@ export class RBACEngine {
       if (permissions.inherits) {
         for (const refRole of permissions.inherits) {
           this._refs[roleName] = this._refs[roleName] || {};
-          // this._rules[refRole] = this._rules[refRole] || {};
+          this._rules[refRole] = this._rules[refRole] || {};
           this._refs[roleName][refRole] = this._rules[refRole];
         }
       }
