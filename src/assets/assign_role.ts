@@ -1,7 +1,8 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { AssignRoleAssetProps, assignRoleAssetPropsSchema, RBACAccountProps } from '../data'
-import { isHexString, readRBACRolesObject } from '../utils';
+import { readRBACRolesObject } from '../rbac_db';
+import { isHexString } from '../utils';
 
 export class AssignRoleAsset extends BaseAsset<AssignRoleAssetProps> {
 	public name = 'assignrole';

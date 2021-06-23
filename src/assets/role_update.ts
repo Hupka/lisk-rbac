@@ -1,7 +1,7 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { UpdateRoleAssetProps, updateRoleAssetPropsSchema } from '../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../utils';
+import { readRBACRolesObject, writeRBACRolesObject } from '../rbac_db';
 import { RBAC_PREFIX } from '../constants';
 
 export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {

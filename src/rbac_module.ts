@@ -1,8 +1,10 @@
 import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, GenesisConfig, StateStore, codec } from 'lisk-sdk';
 
-import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset, readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './utils';
+import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
+import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
 import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, } from './data';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
+
 import { AssignRoleAsset } from './assets/assign_role';
 import { CreateRoleAsset } from './assets/role_create';
 import { UpdateRoleAsset } from './assets/role_update';
@@ -121,7 +123,6 @@ export class RbacModule extends BaseModule {
     new UpdateRoleAsset(),
   ];
 
-  public events = [];
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
@@ -134,7 +135,8 @@ export class RbacModule extends BaseModule {
   // Lifecycle hooks
   public async afterBlockApply(_input: AfterBlockApplyContext): Promise<void> {
 
-    // 1. Determine if one of the transactions from the current block belong to this module
+    // 1. Determine if one of the transactions from the current block belong to this module 
+    //    and if any of these transactions require a reload of the RBAC solver.
     let RbacReloadRequired = false;
     for (const transaction of _input.block.payload) {
       if (transaction.moduleID !== this.id) {
