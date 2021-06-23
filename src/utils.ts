@@ -1,6 +1,5 @@
 import { codec, StateStore } from "lisk-sdk";
 import { Account } from "@liskhq/lisk-chain"
-import { RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from "./constants";
 
 import {
   RBACAccountProps,
@@ -8,11 +7,13 @@ import {
   RBACPermissionsPropsSchema,
   RBACRolesProps,
   RBACRolesPropsSchema,
+  RBACRuleset,
   RBACRulesetRecord,
-  RBACRulesetRoleRecord,
-  RBACRulesets,
-  RBACRulesetsSchema
+  RBACRulesetRecordSchema,
+  RBACRulesetRuleRecord,
+  RBACRulesetSchema
 } from "./data"
+import { RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from "./constants";
 import RBAC from './rbac-algorithm/algorithm';
 
 export const createRulesetRecord = (
@@ -29,26 +30,18 @@ export const createRulesetRecord = (
   }
 
   roleSet.roles.forEach(elementRole => {
-    const role: RBACRulesetRoleRecord = {
-      roleId: elementRole.id,
-      can: [],
-      inherits: []
-    };
-
-    if (elementRole.inheritance) {
-      role.inherits = elementRole.inheritance;
+    const ruleRecord: RBACRulesetRuleRecord = {
+      role: elementRole,
+      permissions: []
     }
 
     permissionSet.permissions.forEach(elementPerm => {
-      if (elementPerm.roleId === role.roleId) {
-        role.can.push({
-          name: elementPerm.resourceName,
-          operation: elementPerm.operationName
-        })
+      if (elementPerm.associatedRoleIds.find(id => id === ruleRecord.role.id)) {
+        ruleRecord.permissions.push(elementPerm)
       }
     })
 
-    ruleset.roles.push(role);
+    ruleset.roles.push(ruleRecord);
   });
 
   return ruleset;
@@ -61,14 +54,14 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
   }
 
   ruleset.roles.forEach(element => {
-    if (element.inherits) {
-      loadOptions.roles[element.roleId] = {
-        can: [...element.can],
-        inherits: [...element.inherits],
+    if (element.role.inheritance) {
+      loadOptions.roles[element.role.id] = {
+        can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+        inherits: [...element.role.inheritance],
       }
     } else {
-      loadOptions.roles[element.roleId] = {
-        can: [...element.can],
+      loadOptions.roles[element.role.id] = {
+        can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
       }
     }
   });
@@ -76,23 +69,43 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
   return new RBAC(loadOptions, ruleset.version);
 }
 
-export const readRBACRulesetsObject = async (
+export const readRBACRulesetObject = async (
   stateStore: StateStore
-): Promise<RBACRulesets | undefined> => {
-  const result = await stateStore.chain.get(RBAC_RULESETS_STATESTORE_KEY);
+): Promise<RBACRuleset | undefined> => {
+  const result = await stateStore.chain.get(RBAC_RULESET_STATESTORE_KEY);
 
   if (!result) {
     return undefined;
   }
 
-  return codec.decode<RBACRulesets>(RBACRulesetsSchema, result);
+  return codec.decode<RBACRuleset>(RBACRulesetSchema, result);
 };
 
-export const writeRBACRulesetsObject = async (
+export const writeRBACRulesetObject = async (
   stateStore: StateStore,
-  rulesets: RBACRulesets,
+  rulesets: RBACRuleset,
 ): Promise<void> => {
-  await stateStore.chain.set(RBAC_RULESETS_STATESTORE_KEY, codec.encode(RBACRulesetsSchema, rulesets));
+  await stateStore.chain.set(RBAC_RULESET_STATESTORE_KEY, codec.encode(RBACRulesetSchema, rulesets));
+};
+
+export const readRBACRulesetVersionObject = async (
+  stateStore: StateStore,
+  version: number
+): Promise<RBACRulesetRecord | undefined> => {
+  const result = await stateStore.chain.get(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${version}`);
+
+  if (!result) {
+    return undefined;
+  }
+
+  return codec.decode<RBACRulesetRecord>(RBACRulesetRecordSchema, result);
+};
+
+export const writeRBACRulesetVersionObject = async (
+  stateStore: StateStore,
+  ruleset: RBACRulesetRecord
+): Promise<void> => {
+  await stateStore.chain.set(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${ruleset.version}`, codec.encode(RBACRulesetRecordSchema, ruleset));
 };
 
 export const readRBACRolesObject = async (

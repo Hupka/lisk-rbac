@@ -1,21 +1,12 @@
-import {
-  BaseModule,
-  AfterBlockApplyContext,
-  TransactionApplyContext,
-  BeforeBlockApplyContext,
-  AfterGenesisBlockApplyContext,
-  GenesisConfig,
-  StateStore,
-  codec,
-} from 'lisk-sdk';
+import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, GenesisConfig, StateStore, codec } from 'lisk-sdk';
 
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACRulesetsSchema, RBACRulesets, RBACAccountRoleItem, } from './data';
-import RBAC from './rbac-algorithm/algorithm';
+import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset, readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './utils';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, } from './data';
+import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 import { AssignRoleAsset } from './assets/assign_role';
-import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESETS_STATESTORE_KEY } from './constants';
 import { CreateRoleAsset } from './assets/role_create';
-import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset, readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetsObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetsObject } from './utils';
 import { UpdateRoleAsset } from './assets/role_update';
+import RBAC from './rbac-algorithm/algorithm';
 
 export class RbacModule extends BaseModule {
 
@@ -43,16 +34,33 @@ export class RbacModule extends BaseModule {
 
       return Promise.resolve(codec.toJSON(RBACPermissionsPropsSchema, permissionsList));
     },
-    getRulesetsList: async (): Promise<Record<string, unknown>> => {
-      const rulesetsBuffer = await this._dataAccess.getChainState(RBAC_RULESETS_STATESTORE_KEY);
+    getActiveRuleset: async (): Promise<Record<string, unknown>> => {
+      const rulesetBuffer = await this._dataAccess.getChainState(RBAC_RULESET_STATESTORE_KEY);
 
-      if (!rulesetsBuffer) {
-        return Promise.reject(new Error("No rulesets available in stateStore."));
+      if (!rulesetBuffer) {
+        return Promise.reject(new Error("No ruleset available in stateStore."));
       }
 
-      const rulesets = codec.decode<RBACRulesets>(RBACRulesetsSchema, rulesetsBuffer)
+      const ruleset = codec.decode<RBACRuleset>(RBACRulesetSchema, rulesetBuffer)
 
-      return Promise.resolve(codec.toJSON(RBACRulesetsSchema, rulesets));
+      return Promise.resolve(codec.toJSON(RBACRulesetRecordSchema, ruleset.ruleset));
+    },
+    getRulesetVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
+      const { version } = params;
+
+      if (!version) {
+        return Promise.reject(new Error("No version provided."));
+      }
+
+      const rulesetBuffer = await this._dataAccess.getChainState(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${parseInt(version as string, 10)}`);
+
+      if (!rulesetBuffer) {
+        return Promise.reject(new Error(`Ruleset version '${version as string}' does not exist.`));
+      }
+
+      const ruleset = codec.decode<RBACRulesetRecord>(RBACRulesetRecordSchema, rulesetBuffer)
+
+      return Promise.resolve(codec.toJSON(RBACRulesetRecordSchema, ruleset));
     },
     hasPermission: async (params: Record<string, unknown>): Promise<boolean> => {
       const { address, resource, operation } = params;
@@ -117,19 +125,13 @@ export class RbacModule extends BaseModule {
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = [1,2];
+  private readonly assetIDsRequiringRBACReload = [1, 2];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
   }
 
   // Lifecycle hooks
-  public async beforeBlockApply(_input: BeforeBlockApplyContext): Promise<void> {
-    // Get any data from stateStore using block info, below is an example getting a generator
-    // const generatorAddress = getAddressFromPublicKey(_input.block.header.generatorPublicKey);
-    // const generator = await _input.stateStore.account.get<TokenAccount>(generatorAddress);
-  }
-
   public async afterBlockApply(_input: AfterBlockApplyContext): Promise<void> {
 
     // 1. Determine if one of the transactions from the current block belong to this module
@@ -144,43 +146,35 @@ export class RbacModule extends BaseModule {
       }
     }
 
-    // 2. In case there were RBAC admin transactions in this block, reload solver, bump version
+    // 2. In case there were RBAC admin transactions in this block, generate new ruleset version, reload solver
     if (RbacReloadRequired) {
       const roles = await readRBACRolesObject(_input.stateStore);
       const permissions = await readRBACPermissionsObject(_input.stateStore);
+      const rulesetsObj = await readRBACRulesetObject(_input.stateStore);
 
-      if (roles && permissions) {
-        const rulesetsObj = await readRBACRulesetsObject(_input.stateStore);
-        if (rulesetsObj) {
-          // In case activeVersion was set to latestVersion, increment it as well
-          if (rulesetsObj.activeVersion === rulesetsObj.latestVersion) {
-            rulesetsObj.activeVersion += 1;
-          }
-          rulesetsObj.latestVersion += 1;
-          rulesetsObj.rulesets.push(createRulesetRecord(roles, permissions, _input.block.header.id, rulesetsObj.latestVersion));
-          await writeRBACRulesetsObject(_input.stateStore, rulesetsObj)
+      if (rulesetsObj && roles && permissions) {
+        const newRulesetVersion = createRulesetRecord(roles, permissions, _input.block.header.id, rulesetsObj.latestVersion + 1)
+
+        await writeRBACRulesetVersionObject(_input.stateStore, newRulesetVersion)
+
+        // In case activeVersion was set to latestVersion, increment it as well
+        if (rulesetsObj.activeVersion === rulesetsObj.latestVersion) {
+          rulesetsObj.activeVersion = newRulesetVersion.version;
+          rulesetsObj.latestVersion = newRulesetVersion.version;
+          rulesetsObj.ruleset = newRulesetVersion;
+        } else {
+          rulesetsObj.latestVersion = newRulesetVersion.version;
         }
+
+        await writeRBACRulesetObject(_input.stateStore, rulesetsObj)
       }
     }
 
     // 3. Load active ruleset into RBACSolve; this only happens when ruleset was updated through a transaction in this block
-    const rbacRulesets = await readRBACRulesetsObject(_input.stateStore);
-    if (rbacRulesets && rbacRulesets.activeVersion !== this.RBACSolver.version) {
-      const activeRuleset = rbacRulesets?.rulesets.find((ruleset) => ruleset.version === rbacRulesets?.activeVersion)
-      if (activeRuleset) {
-        this.RBACSolver = loadRBACRuleset(activeRuleset);
-      }
+    const activeRuleset = await readRBACRulesetObject(_input.stateStore);
+    if (activeRuleset) {
+      this.RBACSolver = loadRBACRuleset(activeRuleset.ruleset);
     }
-  }
-
-  public async beforeTransactionApply(_input: TransactionApplyContext): Promise<void> {
-    // Get any data from stateStore using transaction info, below is an example
-    // const sender = await _input.stateStore.account.getOrDefault<TokenAccount>(_input.transaction.senderAddress);
-  }
-
-  public async afterTransactionApply(_input: TransactionApplyContext): Promise<void> {
-    // Get any data from stateStore using transaction info, below is an example
-    // const sender = await _input.stateStore.account.getOrDefault<TokenAccount>(_input.transaction.senderAddress);
   }
 
   public async afterGenesisBlockApply(_input: AfterGenesisBlockApplyContext): Promise<void> {
@@ -191,9 +185,13 @@ export class RbacModule extends BaseModule {
     // Write first database entries for roles/permissions/rulesets after genesis block
     await writeRBACRolesObject(_input.stateStore, DEFAULT_ROLES);
     await writeRBACPermissionsObject(_input.stateStore, DEFAULT_PERMISSIONS);
-    await writeRBACRulesetsObject(_input.stateStore, { rulesets: [genesisRbacRulesetRecord], activeVersion: genesisRbacRulesetVersion, latestVersion: genesisRbacRulesetVersion });
+    await writeRBACRulesetVersionObject(_input.stateStore, genesisRbacRulesetRecord);
+    await writeRBACRulesetObject(_input.stateStore, { ruleset: genesisRbacRulesetRecord, activeVersion: genesisRbacRulesetVersion, latestVersion: genesisRbacRulesetVersion });
 
     // Load initial ruleset into RBACSolver
     this.RBACSolver = loadRBACRuleset(genesisRbacRulesetRecord);
+
+    // eslint-disable-next-line no-console
+    console.log(this.RBACSolver.getRules());
   }
 }

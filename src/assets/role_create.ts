@@ -1,4 +1,5 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
+import { RBAC_PREFIX } from '../constants';
 
 import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from '../data'
 import { readRBACRolesObject, writeRBACRolesObject } from '../utils';
@@ -20,13 +21,17 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     if (!regex.test(asset.name)) {
       throw new Error("Role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
     }
+
+    if (asset.inheritance.filter(elem => elem === "").length > 0) {
+      throw new Error("Role inheritance includes element referencing role id \"\". This is not a valid role id.");
+    }
   }
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<CreateRoleAssetProps>): Promise<void> {
 
     // 1. Verify that sender has permission to perform transaction
     let hasPermission = false;
-    if (await reducerHandler.invoke("rbac:hasPermission", {
+    if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
       address: transaction.senderAddress,
       resource: "roles",
       operation: "create"
@@ -59,6 +64,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       description: asset.description ? asset.description : "",
       transactionId: transaction.id,
       inheritance: asset.inheritance,
+      lifecycle: "active"
     }
 
     // 6. Write new set of roles to stateStore

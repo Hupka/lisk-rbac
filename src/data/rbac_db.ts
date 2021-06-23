@@ -6,6 +6,7 @@ export interface RBACRoleRecord {
   description: string;
   transactionId: Buffer;
   inheritance: string[];
+  lifecycle: string;
 }
 
 export interface RBACRolesProps {
@@ -16,7 +17,7 @@ export interface RBACRolesProps {
 export const RBACRoleRecordSchema = {
   $id: 'rbac/chainstate/roles/record',
   type: "object",
-  required: ["id", "name", "description", "transactionId"],
+  required: ["id", "name", "description", "transactionId", "inheritance", "lifecycle"],
   properties: {
     id: {
       dataType: "string",
@@ -40,14 +41,18 @@ export const RBACRoleRecordSchema = {
       items: {
         dataType: "string",
       }
-    }
+    },
+    lifecycle: {
+      dataType: "string",
+      fieldNumber: 6,
+    },
   }
 }
 
 export const RBACRolesPropsSchema = {
   $id: 'rbac/chainstate/roles',
   type: "object",
-  required: ["roles"],
+  required: ["roles", "latest"],
   properties: {
     roles: {
       type: "array",
@@ -66,7 +71,8 @@ export const RBACRolesPropsSchema = {
 // Interfaces and Lisk Schemas for role permissions
 
 export interface RBACPermissionRecord {
-  roleId: string;
+  id: string;
+  associatedRoleIds: string[];
   resourceName: string;
   operationName: string;
   transactionId: Buffer;
@@ -74,28 +80,36 @@ export interface RBACPermissionRecord {
 
 export interface RBACPermissionsProps {
   permissions: RBACPermissionRecord[];
+  latest: number;
 }
 
 export const RBACPermissionRecordSchema = {
   $id: 'rbac/chainstate/permissions/record',
   type: "object",
-  required: ["roleId", "resourceName", "operationName", "transactionId"],
+  required: ["id", "associatedRoleIds", "resourceName", "operationName", "transactionId"],
   properties: {
-    roleId: {
+    id: {
       dataType: "string",
       fieldNumber: 1,
     },
-    resourceName: {
-      dataType: "string",
+    associatedRoleIds: {
+      type: "array",
       fieldNumber: 2,
+      items: {
+        dataType: "string",
+      }
     },
-    operationName: {
+    resourceName: {
       dataType: "string",
       fieldNumber: 3,
     },
+    operationName: {
+      dataType: "string",
+      fieldNumber: 4,
+    },
     transactionId: {
       dataType: "bytes",
-      fieldNumber: 4,
+      fieldNumber: 5,
     }
   }
 }
@@ -103,82 +117,58 @@ export const RBACPermissionRecordSchema = {
 export const RBACPermissionsPropsSchema = {
   $id: 'rbac/chainstate/permissions',
   type: "object",
-  required: ["permissions"],
+  required: ["permissions", "latest"],
   properties: {
     permissions: {
       type: "array",
       fieldNumber: 1,
       items: {
         ...RBACPermissionRecordSchema,
-      },
+      }
+    },
+    latest: {
+      dataType: "sint32",
+      fieldNumber: 2,
     }
   }
 }
 
 // Interfaces and Lisk Schemas for the RBAC ruleset which is used by the RBAC validation engine
 
-export interface RBACRulesetPermissionRecord {
-  name: string;
-  operation: string;
-}
-
-export interface RBACRulesetRoleRecord {
-  roleId: string;
-  can: RBACRulesetPermissionRecord[];
-  inherits: string[];
+export interface RBACRulesetRuleRecord {
+  role: RBACRoleRecord;
+  permissions: RBACPermissionRecord[];
 }
 
 export interface RBACRulesetRecord {
-  roles: RBACRulesetRoleRecord[];
+  roles: RBACRulesetRuleRecord[];
   version: number;
   blockId: Buffer;
 }
 
-export interface RBACRulesets {
-  rulesets: RBACRulesetRecord[];
+export interface RBACRuleset {
+  ruleset: RBACRulesetRecord;
   activeVersion: number;
   latestVersion: number;
 }
 
-export const RBACRulesetPermissionRecordSchema = {
-  $id: 'rbac/chainstate/rulesets/permissionrecord',
-  type: "object",
-  required: ["name", "operation"],
-  properties: {
-    name: {
-      dataType: "string",
-      fieldNumber: 1,
-    },
-    operation: {
-      dataType: "string",
-      fieldNumber: 2,
-    }
-  }
-}
-
 export const RBACRulesetRoleRecordSchema = {
-  $id: 'rbac/chainstate/rulesets/roles/record',
+  $id: 'rbac/chainstate/ruleset/role/record',
   type: "object",
-  required: ["roleId", "can"],
+  required: ["role", "permissions"],
   properties: {
-    roleId: {
-      dataType: "string",
+    role: {
       fieldNumber: 1,
+      ...RBACRoleRecordSchema,
+
     },
-    can: {
+    permissions: {
       type: "array",
       fieldNumber: 2,
       items: {
-        ...RBACRulesetPermissionRecordSchema,
+        ...RBACPermissionRecordSchema,
       }
     },
-    inherits: {
-      type: "array",
-      fieldNumber: 3,
-      items: {
-        dataType: "string",
-      }
-    }
   }
 }
 
@@ -205,17 +195,14 @@ export const RBACRulesetRecordSchema = {
   }
 }
 
-export const RBACRulesetsSchema = {
+export const RBACRulesetSchema = {
   $id: 'rbac/chainstate/rulesets',
   type: "object",
-  required: ["rulesets", "activeVersion", "latestVersion"],
+  required: ["ruleset", "activeVersion", "latestVersion"],
   properties: {
-    rulesets: {
-      type: "array",
+    ruleset: {
       fieldNumber: 1,
-      items: {
-        ...RBACRulesetRecordSchema,
-      }
+      ...RBACRulesetRecordSchema,
     },
     activeVersion: {
       dataType: "sint32",

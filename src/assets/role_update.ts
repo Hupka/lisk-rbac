@@ -2,6 +2,7 @@ import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { UpdateRoleAssetProps, updateRoleAssetPropsSchema } from '../data'
 import { readRBACRolesObject, writeRBACRolesObject } from '../utils';
+import { RBAC_PREFIX } from '../constants';
 
 export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
   public name = 'roles:update';
@@ -34,7 +35,7 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
 
     // 1. Verify that sender has permission to perform transaction
     let hasPermission = false;
-    if (await reducerHandler.invoke("rbac:hasPermission", {
+    if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
       address: transaction.senderAddress,
       resource: "roles",
       operation: "update"
