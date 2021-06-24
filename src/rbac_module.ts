@@ -2,12 +2,14 @@ import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, Gene
 
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
 import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, } from './data';
-import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord } from './data';
+import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_ROLE_LIFECYCLE_ACTIVE, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
 import { AssignRoleAsset } from './assets/assign_role';
 import { CreateRoleAsset } from './assets/role_create';
 import { UpdateRoleAsset } from './assets/role_update';
+import { DeleteRoleAsset } from './assets/role_delete';
+
 import RBAC from './rbac-algorithm/algorithm';
 
 export class RbacModule extends BaseModule {
@@ -121,12 +123,13 @@ export class RbacModule extends BaseModule {
     new AssignRoleAsset(),
     new CreateRoleAsset(),
     new UpdateRoleAsset(),
+    new DeleteRoleAsset(),
   ];
 
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = [1, 2];
+  private readonly assetIDsRequiringRBACReload = [1,2,3];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
