@@ -48,14 +48,17 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
   }
 
   ruleset.roles.forEach(element => {
-    if (element.role.inheritance) {
-      loadOptions.roles[element.role.id] = {
-        can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
-        inherits: [...element.role.inheritance],
-      }
-    } else {
-      loadOptions.roles[element.role.id] = {
-        can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+    // only add roles which have are in lifecycle=active state
+    if(element.role.lifecycle === "active"){
+      if (element.role.inheritance) {
+        loadOptions.roles[element.role.id] = {
+          can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+          inherits: [...element.role.inheritance],
+        }
+      } else {
+        loadOptions.roles[element.role.id] = {
+          can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+        }
       }
     }
   });
