@@ -41,7 +41,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
 
     // 2. Do nothing when sender account does not have role with permission roles:create
     if (!hasPermission) {
-      throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions.`);
+      throw new Error(`Account '${transaction.senderAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
     }
 
     // 3. Fetch current set of roles from stateStore
