@@ -6,6 +6,9 @@ export const RBAC_RULESET_VERSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset/vers
 export const RBAC_ROLES_STATESTORE_KEY = `${RBAC_PREFIX}:roles`;
 export const RBAC_PERMISSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:permissions`;
 
+export const RBAC_ROLE_LIFECYCLE_ACTIVE = "active";
+export const RBAC_ROLE_LIFECYCLE_INACTIVE = "inactive";
+
 // Default roles are only being loaded when mining the genesisBlock, default roles & permissions will never be loaded again
 export const DEFAULT_ROLES: RBACRolesProps = {
   roles: [
@@ -15,7 +18,7 @@ export const DEFAULT_ROLES: RBACRolesProps = {
       description: "Role has permissions to change the RBAC ruleset.",
       transactionId: Buffer.from("genesis", "utf-8"),
       inheritance: [],
-      lifecycle: "active"
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     },
     {
       id: "2",
@@ -23,7 +26,7 @@ export const DEFAULT_ROLES: RBACRolesProps = {
       description: "Role has permissions to assign and remove roles from accounts.",
       transactionId: Buffer.from("genesis", "utf-8"),
       inheritance: [],
-      lifecycle: "active"
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     },
     {
       id: "3",
@@ -34,7 +37,7 @@ export const DEFAULT_ROLES: RBACRolesProps = {
         "1",
         "2"
       ],
-      lifecycle: "active"
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
   ],
   latest: 3
