@@ -1,6 +1,6 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { RBAC_PREFIX } from '../constants';
+import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_ACTIVE } from '../constants';
 import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from '../data'
 import { readRBACRolesObject, writeRBACRolesObject } from '../rbac_db';
 
@@ -64,7 +64,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       description: asset.description ? asset.description : "",
       transactionId: transaction.id,
       inheritance: asset.inheritance,
-      lifecycle: "active"
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
 
     // 6. Write new set of roles to stateStore
