@@ -5,7 +5,7 @@ export interface CreateRoleAssetProps {
 }
 
 export const createRoleAssetPropsSchema = {
-	$id: 'rbac/assets/create-role',
+	$id: 'rbac/assets/roles/create',
 	title: 'Transaction asset to create a new role for the rbac module',
 	type: 'object',
 	required: ['name'],
