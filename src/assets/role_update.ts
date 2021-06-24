@@ -58,9 +58,9 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
     // 4. Verify that role with the sent id does exist
     const roleRecord = rolesList.roles.find(elem =>  asset.id === elem.id);
     if (!roleRecord) {
-      throw new Error("Role does not exist. Role update can not be performed.");
+      throw new Error(`Role with id '${asset.id}' does not exist. Role update can not be performed.`);
     }
-    
+
     // 5. Update role item
     roleRecord.name = asset.name.toLowerCase();
     roleRecord.description = asset.description ? asset.description : "";
