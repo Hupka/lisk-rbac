@@ -6,7 +6,7 @@ export interface UpdateRoleAssetProps {
 }
 
 export const updateRoleAssetPropsSchema = {
-	$id: 'rbac/assets/update-role',
+	$id: 'rbac/assets/roles/update',
 	title: 'Transaction asset to update an existing role for the rbac module',
 	type: 'object',
 	required: ['id','name'],
