@@ -1,4 +1,5 @@
 import { Account } from "@liskhq/lisk-chain"
+import { RBAC_ROLE_LIFECYCLE_ACTIVE } from "./constants";
 
 import {
   RBACAccountProps,
@@ -49,11 +50,14 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
 
   ruleset.roles.forEach(element => {
     // only add roles which have are in lifecycle=active state
-    if(element.role.lifecycle === "active"){
+    if(element.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE){
       if (element.role.inheritance) {
+        // validate which inherited roles are 'active', only load these
+        const activeRuleInheritance = element.role.inheritance.filter(elem => ruleset.roles.find(x => x.role.id === elem)?.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE)
+
         loadOptions.roles[element.role.id] = {
           can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
-          inherits: [...element.role.inheritance],
+          inherits: [...activeRuleInheritance],
         }
       } else {
         loadOptions.roles[element.role.id] = {
