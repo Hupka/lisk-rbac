@@ -1,8 +1,8 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { DeleteRoleAssetProps, deleteRoleAssetPropsSchema } from '../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../rbac_db';
-import { DEFAULT_ROLES, RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../constants';
+import { DeleteRoleAssetProps, deleteRoleAssetPropsSchema } from '../../data'
+import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
+import { DEFAULT_ROLES, RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../../constants';
 
 export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
   public name = 'roles:delete';

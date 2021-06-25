@@ -3,12 +3,9 @@ import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, Gene
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
 import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
 import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord } from './data';
-import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_ROLE_LIFECYCLE_ACTIVE, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
+import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
-import { AssignRoleAsset } from './assets/assign_role';
-import { CreateRoleAsset } from './assets/role_create';
-import { UpdateRoleAsset } from './assets/role_update';
-import { DeleteRoleAsset } from './assets/role_delete';
+import { AssignRoleAsset, CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset } from './assets';
 
 import RBAC from './rbac-algorithm/algorithm';
 

@@ -1,8 +1,8 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_ACTIVE } from '../constants';
-import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from '../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../rbac_db';
+import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_ACTIVE } from '../../constants';
+import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from '../../data'
+import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
 
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
   public name = 'roles:create';
