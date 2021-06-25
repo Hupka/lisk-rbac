@@ -1,4 +1,6 @@
 export * from './roles/role_create'
 export * from './roles/role_update'
 export * from './roles/role_delete'
+export * from './permissions/permissions_associate'
+export * from './permissions/permissions_remove'
 export * from './assign_role'
