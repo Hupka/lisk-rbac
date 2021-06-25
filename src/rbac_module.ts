@@ -1,7 +1,7 @@
 import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, GenesisConfig, StateStore, codec } from 'lisk-sdk';
 
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
-import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
+import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeDefaultRBACRolesPermissions, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
 import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord } from './data';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
@@ -186,7 +186,10 @@ export class RbacModule extends BaseModule {
     const genesisRbacRulesetVersion = 0;
     const genesisRbacRulesetRecord = createRulesetRecord(DEFAULT_ROLES, DEFAULT_PERMISSIONS, _input.genesisBlock.header.id, genesisRbacRulesetVersion)
 
-    // Write first database entries for roles/permissions/rulesets after genesis block
+    // write DEFAULT_ROLES and DEFAULT_PERMISSIONS to stateStore
+    await writeDefaultRBACRolesPermissions(_input.stateStore, DEFAULT_ROLES, DEFAULT_PERMISSIONS)
+
+    // Write first database entries for roles/permissions/rulesets
     await writeRBACRolesObject(_input.stateStore, DEFAULT_ROLES);
     await writeRBACPermissionsObject(_input.stateStore, DEFAULT_PERMISSIONS);
     await writeRBACRulesetVersionObject(_input.stateStore, genesisRbacRulesetRecord);
