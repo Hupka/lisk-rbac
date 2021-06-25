@@ -99,20 +99,13 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
     },
     {
       id: "8",
-      associatedRoleIds: ["2"],
-      resourceName: "roles",
-      operationName: "read",
-      transactionId: Buffer.from("genesis", "utf-8")
-    },
-    {
-      id: "9",
       associatedRoleIds: ["3"],
       resourceName: "rulesets",
       operationName: "setversion",
       transactionId: Buffer.from("genesis", "utf-8")
     }
   ],
-  latest: 9
+  latest: 8
 }
 
 
