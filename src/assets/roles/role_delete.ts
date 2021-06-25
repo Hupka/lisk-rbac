@@ -1,8 +1,8 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { DeleteRoleAssetProps, deleteRoleAssetPropsSchema } from '../../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
-import { DEFAULT_ROLES, RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../../constants';
+import { readDefaultRBACRolesObject, readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
+import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../../constants';
 
 export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
   public name = 'roles:delete';
@@ -62,7 +62,13 @@ export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
     }
 
     // 6. Don't allow deletion of default roles
-    if (DEFAULT_ROLES.roles.find(elem => elem.id === roleRecord.id)) {
+    const defaultRolesList = await readDefaultRBACRolesObject(stateStore)
+
+    if (!defaultRolesList) {
+      throw new Error("ERR: no default roles list in database");
+    }
+
+    if (defaultRolesList.roles.find(elem => elem.id === roleRecord.id)) {
       throw new Error(`Role with id '${asset.id}' is a default role. Default roles can not be deleted.`);
     }
 
