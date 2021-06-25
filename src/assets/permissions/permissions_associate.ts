@@ -22,7 +22,7 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
     }
 
     // validate that permissions' resource and operation names have the right format
-    const regex = new RegExp("^\b[a-zA-Z0-9]{3,64}\b$");
+    const regex = new RegExp("^[a-zA-Z0-9]{3,64}$");
 
     for (const permission of asset.permissions) {
       if (!regex.test(permission.resourceName)) {
@@ -51,7 +51,7 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
     }
 
     // 2. Do nothing when sender account does not have role with sufficient permission
-    if (!hasPermission.filter(elem => !elem).length) {
+    if (hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account '${transaction.senderAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
     }
 

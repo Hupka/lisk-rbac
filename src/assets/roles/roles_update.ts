@@ -25,7 +25,7 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
       throw new Error("Role id needs to be of type 'string'.");
     }
 
-    const regex = new RegExp("^\b[a-zA-Z0-9._%+-]{3,64}\b$");
+    const regex = new RegExp("^[a-zA-Z0-9._%+-]{3,64}$");
 
     if (!regex.test(asset.name)) {
       throw new Error("The role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
@@ -49,7 +49,7 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
     }
 
     // 2. Do nothing when sender account does not have role with sufficient permission
-    if (!hasPermission.filter(elem => !elem).length) {
+    if (hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions to perform '${this.name}'.`);
     }
 
