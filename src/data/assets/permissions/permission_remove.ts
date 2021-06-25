@@ -7,6 +7,7 @@ export interface RemovePermissionsAssetProps {
 
 export const removePermissionsAssetPropsSchema = {
   $id: 'rbac/assets/permissions/remove',
+	title: 'Transaction asset of the rbac module to remove association of a set of permissions with a role',
   type: "object",
   required: ["roleId", "permissions"],
   properties: {

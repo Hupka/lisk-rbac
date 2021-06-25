@@ -11,6 +11,7 @@ export interface AssociatePermissionsAssetProps {
 
 export const permissionAssetSchema = {
   $id: 'rbac/assets/permissions/record',
+	title: 'Transaction asset of the rbac module to associate a set of permissions with a role',
   type: "object",
   required: ["resourceName", "operationName", "description"],
   properties: {
