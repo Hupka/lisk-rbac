@@ -1,8 +1,23 @@
-import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
+import { BaseAsset, ApplyAssetContext, ValidateAssetContext, codec } from 'lisk-sdk';
 
-import { DeleteRoleAssetProps, deleteRoleAssetPropsSchema } from '../../data'
-import { readDefaultRBACRolesObject, readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
-import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../../constants';
+import { 
+  DeleteRoleAssetProps, 
+  deleteRoleAssetPropsSchema, 
+  RoleAccounts, 
+  RoleAccountsSchema 
+} from '../../data';
+
+import { 
+  readDefaultRBACRolesObject, 
+  readRBACRolesObject, 
+  writeRBACRolesObject 
+} from '../../rbac_db';
+
+import { 
+  RBAC_PREFIX, 
+  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, 
+  RBAC_ROLE_LIFECYCLE_INACTIVE 
+} from '../../constants';
 
 export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
   public name = 'roles:delete';
@@ -72,10 +87,20 @@ export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
       throw new Error(`Role with id '${asset.id}' is a default role. Default roles can not be deleted.`);
     }
 
-    // 7. Schedule role item for removal from RBAC solver by setting it inactive
+    // 7. Set RoleAccounts table for this role to 'inactive'
+    const roleAccountsBuffer = await stateStore.chain.get(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${asset.id}`);
+    if (!roleAccountsBuffer) {
+      throw new Error("ERR: no roles list in database");
+    }
+
+    const roleAccounts = codec.decode<RoleAccounts>(RoleAccountsSchema, roleAccountsBuffer);
+    roleAccounts.lifecycle = RBAC_ROLE_LIFECYCLE_INACTIVE;
+    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${asset.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+
+    // 8. Schedule role item for removal from RBAC solver by setting it inactive
     roleRecord.lifecycle = RBAC_ROLE_LIFECYCLE_INACTIVE
 
-    // 8. Write new set of roles to stateStore
+    // 9. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles.filter(elem => elem.id !== asset.id), roleRecord]
     rolesList.roles = rolesList.roles.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
 

@@ -1,8 +1,23 @@
-import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
+import { BaseAsset, ApplyAssetContext, ValidateAssetContext, codec } from 'lisk-sdk';
 
-import { RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_ACTIVE } from '../../constants';
-import { CreateRoleAssetProps, createRoleAssetPropsSchema, RBACRoleRecord } from '../../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
+import { 
+  RBAC_PREFIX, 
+  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, 
+  RBAC_ROLE_LIFECYCLE_ACTIVE 
+} from '../../constants';
+
+import { 
+  CreateRoleAssetProps, 
+  createRoleAssetPropsSchema, 
+  RBACRoleRecord, 
+  RoleAccounts, 
+  RoleAccountsSchema 
+} from '../../data'
+
+import { 
+  readRBACRolesObject, 
+  writeRBACRolesObject 
+} from '../../rbac_db';
 
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
   public name = 'roles:create';
@@ -72,7 +87,15 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
 
-    // 6. Write new set of roles to stateStore
+    // 6. Create empty RoleAccounts table
+    const roleAccounts: RoleAccounts = {
+      id: roleRecord.id,
+      accounts: [],
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+    }
+    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+
+    // 7. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles, roleRecord]
     rolesList.latest = newRoleId;
 
