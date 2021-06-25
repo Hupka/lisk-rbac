@@ -6,6 +6,9 @@ export const RBAC_RULESET_VERSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset/vers
 export const RBAC_ROLES_STATESTORE_KEY = `${RBAC_PREFIX}:roles`;
 export const RBAC_PERMISSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:permissions`;
 
+export const RBAC_DEFAULT_ROLES_STATESTORE_KEY = `${RBAC_PREFIX}:roles/default`;
+export const RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:permissions/default`;
+
 export const RBAC_ROLE_LIFECYCLE_ACTIVE = "active";
 export const RBAC_ROLE_LIFECYCLE_INACTIVE = "inactive";
 
@@ -100,9 +103,16 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       resourceName: "roles",
       operationName: "read",
       transactionId: Buffer.from("genesis", "utf-8")
+    },
+    {
+      id: "9",
+      associatedRoleIds: ["3"],
+      resourceName: "rulesets",
+      operationName: "setversion",
+      transactionId: Buffer.from("genesis", "utf-8")
     }
   ],
-  latest: 8
+  latest: 9
 }
 
 
