@@ -12,6 +12,8 @@ import {
 } from "./data"
 
 import { 
+  RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY,
+  RBAC_DEFAULT_ROLES_STATESTORE_KEY,
   RBAC_PERMISSIONS_STATESTORE_KEY, 
   RBAC_ROLES_STATESTORE_KEY, 
   RBAC_RULESET_STATESTORE_KEY, 
@@ -94,3 +96,36 @@ export const writeRBACPermissionsObject = async (
 ): Promise<void> => {
   await stateStore.chain.set(RBAC_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
 };
+
+export const writeDefaultRBACRolesPermissions = async (
+  stateStore: StateStore,
+  roles: RBACRolesProps,
+  permissions: RBACPermissionsProps,
+): Promise<void> => {
+  await stateStore.chain.set(RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
+  await stateStore.chain.set(RBAC_DEFAULT_ROLES_STATESTORE_KEY, codec.encode(RBACRolesPropsSchema, roles));
+};
+
+export const readDefaultRBACRolesObject = async (
+  stateStore: StateStore
+): Promise<RBACRolesProps | undefined> => {
+  const result = await stateStore.chain.get(RBAC_DEFAULT_ROLES_STATESTORE_KEY);
+
+  if (!result) {
+    return undefined;
+  }
+
+  return codec.decode<RBACRolesProps>(RBACRolesPropsSchema, result);
+}
+
+export const readDefaultRBACPermissionsObject = async (
+  stateStore: StateStore
+): Promise<RBACPermissionsProps | undefined> => {
+  const result = await stateStore.chain.get(RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY);
+
+  if (!result) {
+    return undefined;
+  }
+
+  return codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, result);
+}
