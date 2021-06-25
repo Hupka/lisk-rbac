@@ -1,10 +1,11 @@
-import { RBACPermissionsProps, RBACRolesProps } from "./data";
+import { AssignRoleMembershipAssetProps, RBACPermissionsProps, RBACRolesProps } from "./data";
 
 export const RBAC_PREFIX = "rbac"
-export const RBAC_RULESET_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset`; 
-export const RBAC_RULESET_VERSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset/versions`; 
+export const RBAC_RULESET_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset`;
+export const RBAC_RULESET_VERSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset/versions`;
 export const RBAC_ROLES_STATESTORE_KEY = `${RBAC_PREFIX}:roles`;
 export const RBAC_PERMISSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:permissions`;
+export const RBAC_ROLE_ACCOUNTS_STATESTORE_KEY = `${RBAC_PREFIX}:roleAccounts`;
 
 export const RBAC_DEFAULT_ROLES_STATESTORE_KEY = `${RBAC_PREFIX}:roles/default`;
 export const RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY = `${RBAC_PREFIX}:permissions/default`;
@@ -50,7 +51,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
   permissions: [
     {
       id: "1",
-      associatedRoleIds: ["1","2"],
+      associatedRoleIds: ["1", "2"],
       resourceName: "roles",
       operationName: "read",
       transactionId: Buffer.from("genesis", "utf-8")
@@ -108,5 +109,19 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
   latest: 8
 }
 
+export const GENESIS_ACCOUNTS: AssignRoleMembershipAssetProps[] = [
+  {
+    roles: ["1"],
+    accounts: ["9cabee3d27426676b852ce6b804cb2fdff7cd0b5"],
+  },
+  {
+    roles: ["2"],
+    accounts: ["2e81a43bd35a5e01b347244859a1a6439ffa18bb"],
+  },
+  {
+    roles: ["3"],
+    accounts: ["d04699e57c4a3846c988f3c15306796f8eae5c1c"],
+  },
+]
 
 
