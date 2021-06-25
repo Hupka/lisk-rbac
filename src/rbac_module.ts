@@ -2,7 +2,7 @@ import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, Gene
 
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
 import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeDefaultRBACRolesPermissions, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord } from './data';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema } from './data';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
 import { AssignRoleAsset, CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset, AssociatePermissionsAsset, RemovePermissionsAsset } from './assets';
@@ -12,8 +12,21 @@ import RBAC from './rbac-algorithm/algorithm';
 export class RbacModule extends BaseModule {
 
   public actions = {
-    getRBACSolverRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
-    getRolesList: async (): Promise<Record<string, unknown>> => {
+    getSolverRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
+    getRoles: async (): Promise<Record<string, unknown>> => {
+      const rolesBuffer = await this._dataAccess.getChainState(RBAC_ROLES_STATESTORE_KEY);
+
+      if (!rolesBuffer) {
+        return Promise.reject(new Error("No roles list available in stateStore."));
+      }
+
+      const roles = codec.decode<RBACRolesProps>(RBACRolesPropsSchema, rolesBuffer)
+
+      return Promise.resolve(codec.toJSON(RBACRolesPropsSchema, roles));
+    },
+    getRole: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
+      const { id } = params;
+
       const rolesListBuffer = await this._dataAccess.getChainState(RBAC_ROLES_STATESTORE_KEY);
 
       if (!rolesListBuffer) {
@@ -22,18 +35,24 @@ export class RbacModule extends BaseModule {
 
       const rolesList = codec.decode<RBACRolesProps>(RBACRolesPropsSchema, rolesListBuffer)
 
-      return Promise.resolve(codec.toJSON(RBACRolesPropsSchema, rolesList));
-    },
-    getPermissionsList: async (): Promise<Record<string, unknown>> => {
-      const permissionsListBuffer = await this._dataAccess.getChainState(RBAC_PERMISSIONS_STATESTORE_KEY);
+      // 1. Verify that role with the sent id does exist
+      const roleRecord = rolesList.roles.find(elem => id === elem.id);
+      if (!roleRecord) {
+        throw new Error(`Role with id '${id as string}' does not exist.`);
+      }
 
-      if (!permissionsListBuffer) {
+      return Promise.resolve(codec.toJSON(RBACRoleRecordSchema, roleRecord));
+    },
+    getPermissions: async (): Promise<Record<string, unknown>> => {
+      const permissionsBuffer = await this._dataAccess.getChainState(RBAC_PERMISSIONS_STATESTORE_KEY);
+
+      if (!permissionsBuffer) {
         return Promise.reject(new Error("No permissions list available in stateStore."));
       }
 
-      const permissionsList = codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, permissionsListBuffer)
+      const permissions = codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, permissionsBuffer)
 
-      return Promise.resolve(codec.toJSON(RBACPermissionsPropsSchema, permissionsList));
+      return Promise.resolve(codec.toJSON(RBACPermissionsPropsSchema, permissions));
     },
     getActiveRuleset: async (): Promise<Record<string, unknown>> => {
       const rulesetBuffer = await this._dataAccess.getChainState(RBAC_RULESET_STATESTORE_KEY);
@@ -46,14 +65,14 @@ export class RbacModule extends BaseModule {
 
       return Promise.resolve(codec.toJSON(RBACRulesetRecordSchema, ruleset.ruleset));
     },
-    getRulesetVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
+    getRulesetByVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
       const { version } = params;
 
       if (!version) {
         return Promise.reject(new Error("No version provided."));
       }
 
-      const rulesetBuffer = await this._dataAccess.getChainState(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${parseInt(version as string, 10)}`);
+      const rulesetBuffer = await this._dataAccess.getChainState(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${version as string}`);
 
       if (!rulesetBuffer) {
         return Promise.reject(new Error(`Ruleset version '${version as string}' does not exist.`));
@@ -128,7 +147,7 @@ export class RbacModule extends BaseModule {
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = [1,2,3,4,5];
+  private readonly assetIDsRequiringRBACReload = [1, 2, 3, 4, 5];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
