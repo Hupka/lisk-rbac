@@ -23,6 +23,7 @@ module.exports = {
 		'operator-linebreak': 'off',
 		'import/prefer-default-export': 'off',
 		'lines-between-class-members': 'off', // Off because typescript has members and methods
+		"no-control-regex": 'off', // Off because word boundary regex not accepted
 		'no-useless-constructor': 'off',
 		'no-unused-expressions': 'off',
 		'@typescript-eslint/consistent-type-assertions': ['error'],
