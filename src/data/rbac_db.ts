@@ -214,3 +214,34 @@ export const RBACRulesetSchema = {
     }
   }
 }
+
+// Interfaces and Lisk Schemas for 
+
+export interface RoleAccounts {
+  id: string;
+  accounts: Buffer[];
+  lifecycle: string;
+}
+
+export const RoleAccountsSchema = {
+  $id: 'rbac/chainstate/roleAccounts',
+  type: "object",
+  required: ["id", "accounts", "lifecycle"],
+  properties: {
+    id: {
+      fieldNumber: 1,
+      dataType: "string",
+    },
+    accounts: {
+      fieldNumber: 2,
+      type: "array",
+      items: {
+        dataType: "bytes",
+      }
+    },
+    lifecycle: {
+      fieldNumber: 3,
+      dataType: "string",
+    },
+  }
+}
