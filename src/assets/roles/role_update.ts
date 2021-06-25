@@ -48,7 +48,7 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
       }
     }
 
-    // 2. Do nothing when sender account does not have role with permission roles:create
+    // 2. Do nothing when sender account does not have role with sufficient permission
     if (!hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions to perform '${this.name}'.`);
     }

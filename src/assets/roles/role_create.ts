@@ -20,7 +20,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     const regex = new RegExp("^\b[a-zA-Z0-9._%+-]{3,64}\b$");
 
     if (!regex.test(asset.name)) {
-      throw new Error("Role name is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.");
+      throw new Error(`Role name '${asset.name}' is violating at least one rule: min/max length of 3/64 characters, supported special characters are '.', '-' and '_'.`);
     }
 
     if (asset.inheritance.filter(elem => elem === "").length > 0) {
@@ -44,7 +44,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       }
     }
 
-    // 2. Do nothing when sender account does not have role with permission roles:create
+    // 2. Do nothing when sender account does not have role with sufficient permission
     if (!hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account '${transaction.senderAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
     }
