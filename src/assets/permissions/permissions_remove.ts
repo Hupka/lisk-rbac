@@ -1,7 +1,7 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { RemovePermissionsAssetProps, removePermissionsAssetPropsSchema } from '../../data'
-import { readRBACPermissionsObject, writeRBACPermissionsObject } from '../../rbac_db';
+import { readDefaultRBACPermissionsObject, readDefaultRBACRolesObject, readRBACPermissionsObject, writeRBACPermissionsObject } from '../../rbac_db';
 import { RBAC_PREFIX } from '../../constants';
 
 export class RemovePermissionsAsset extends BaseAsset<RemovePermissionsAssetProps> {
@@ -50,13 +50,29 @@ export class RemovePermissionsAsset extends BaseAsset<RemovePermissionsAssetProp
       throw new Error("ERR: no permissions list in database");
     }
 
-    // 4. Remove permission-to-role associations
+    // 4. Don't allow removal of associations of default permissions from default roles
+    const defaultRolesList = await readDefaultRBACRolesObject(stateStore)
+    const defaultPermissionsList = await readDefaultRBACPermissionsObject(stateStore)
+
+    if (!defaultRolesList || !defaultPermissionsList) {
+      throw new Error("ERR: no default roles and/or permissions list in database");
+    }
+
+    if (defaultRolesList.roles.find(elem => elem.id === asset.roleId)) {
+      for (const permission of asset.permissions) {
+        if (defaultPermissionsList.permissions.find(elem => elem.resourceName === permission.resourceName && elem.operationName === permission.operationName)) {
+          throw new Error(`Association of role with id '${asset.roleId}' with '${permission.resourceName}:${permission.operationName}' is a default rule. Default rules can not be updated.`);
+        }
+      }
+    }
+
+    // 5. Remove permission-to-role associations
     for (const permission of asset.permissions) {
       const permissionIndex = permissionsList.permissions.findIndex(elem => elem.resourceName === permission.resourceName && elem.operationName === permission.operationName)
       if (permissionIndex >= 0) {
         const roleIdIndex = permissionsList.permissions[permissionIndex].associatedRoleIds.indexOf(asset.roleId);
-        permissionsList.permissions[permissionIndex].associatedRoleIds.splice(roleIdIndex,1);
-      } 
+        permissionsList.permissions[permissionIndex].associatedRoleIds.splice(roleIdIndex, 1);
+      }
       // Remove permissions without associations altogether
       if (permissionsList.permissions[permissionIndex].associatedRoleIds === []) {
         permissionsList.permissions.splice(permissionIndex, 1);
