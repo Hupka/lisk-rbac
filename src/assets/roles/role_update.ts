@@ -7,6 +7,7 @@ import { RBAC_PREFIX } from '../../constants';
 export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
   public name = 'roles:update';
   public id = 2;
+  public scopes = [{ resource: "roles", operation: "update"}];
 
   // Define schema for asset
   public schema = updateRoleAssetPropsSchema;
@@ -33,18 +34,22 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<UpdateRoleAssetProps>): Promise<void> {
 
-    // 1. Verify that sender has permission to perform transaction
-    let hasPermission = false;
-    if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
-      address: transaction.senderAddress,
-      resource: "roles",
-      operation: "update"
-    }).then((result) => result)) {
-      hasPermission = true;
+    // 1. Verify that sender has ALL necessary permission to perform transaction
+    const hasPermission: boolean[] = [];
+    for (const scope of this.scopes) {
+      if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
+        address: transaction.senderAddress,
+        resource: scope.resource,
+        operation: scope.operation
+      }).then((result) => result)) {
+        hasPermission.push(true);
+      } else {
+        hasPermission.push(false);
+      }
     }
 
-    // 2. Do nothing when sender account does not have role with permission roles:update
-    if (!hasPermission) {
+    // 2. Do nothing when sender account does not have role with permission roles:create
+    if (!hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions to perform '${this.name}'.`);
     }
 

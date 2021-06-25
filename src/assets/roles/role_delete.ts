@@ -7,6 +7,7 @@ import { DEFAULT_ROLES, RBAC_PREFIX, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../../
 export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
   public name = 'roles:delete';
   public id = 3;
+  public scopes = [{ resource: "roles", operation: "delete" }];
 
   // Define schema for asset
   public schema = deleteRoleAssetPropsSchema;
@@ -23,18 +24,22 @@ export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<DeleteRoleAssetProps>): Promise<void> {
 
-    // 1. Verify that sender has permission to perform transaction
-    let hasPermission = false;
-    if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
-      address: transaction.senderAddress,
-      resource: "roles",
-      operation: "delete"
-    }).then((result) => result)) {
-      hasPermission = true;
+    // 1. Verify that sender has ALL necessary permission to perform transaction
+    const hasPermission: boolean[] = [];
+    for (const scope of this.scopes) {
+      if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
+        address: transaction.senderAddress,
+        resource: scope.resource,
+        operation: scope.operation
+      }).then((result) => result)) {
+        hasPermission.push(true);
+      } else {
+        hasPermission.push(false);
+      }
     }
 
-    // 2. Do nothing when sender account does not have role with permission roles:update
-    if (!hasPermission) {
+    // 2. Do nothing when sender account does not have role with permission roles:create
+    if (!hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account "${transaction.senderAddress.toString('hex')}" does not have sufficient permissions to perform '${this.name}'.`);
     }
 
@@ -42,11 +47,11 @@ export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
     const rolesList = await readRBACRolesObject(stateStore)
 
     if (!rolesList) {
-			throw new Error("ERR: no roles list in database");
+      throw new Error("ERR: no roles list in database");
     }
 
     // 4. Verify that role with the sent id does exist
-    const roleRecord = rolesList.roles.find(elem =>  asset.id === elem.id);
+    const roleRecord = rolesList.roles.find(elem => asset.id === elem.id);
     if (!roleRecord) {
       throw new Error(`Role with id '${asset.id}' does not exist. Role can not be deleted.`);
     }
@@ -60,13 +65,13 @@ export class DeleteRoleAsset extends BaseAsset<DeleteRoleAssetProps> {
     if (DEFAULT_ROLES.roles.find(elem => elem.id === roleRecord.id)) {
       throw new Error(`Role with id '${asset.id}' is a default role. Default roles can not be deleted.`);
     }
-    
+
     // 7. Schedule role item for removal from RBAC solver by setting it inactive
     roleRecord.lifecycle = RBAC_ROLE_LIFECYCLE_INACTIVE
-    
+
     // 8. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles.filter(elem => elem.id !== asset.id), roleRecord]
-    rolesList.roles = rolesList.roles.sort((a, b)=> parseInt(a.id, 10)-parseInt(b.id, 10));
+    rolesList.roles = rolesList.roles.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
 
     await writeRBACRolesObject(stateStore, rolesList);
   }

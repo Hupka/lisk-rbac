@@ -7,6 +7,7 @@ import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
   public name = 'roles:create';
   public id = 1;
+  public scopes = [{ resource: "roles", operation: "create" }];
 
   // Define schema for asset
   public schema = createRoleAssetPropsSchema;
@@ -29,18 +30,22 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
 
   public async apply({ asset, stateStore, reducerHandler, transaction }: ApplyAssetContext<CreateRoleAssetProps>): Promise<void> {
 
-    // 1. Verify that sender has permission to perform transaction
-    let hasPermission = false;
-    if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
-      address: transaction.senderAddress,
-      resource: "roles",
-      operation: "create"
-    }).then((result) => result)) {
-      hasPermission = true;
+    // 1. Verify that sender has ALL necessary permission to perform transaction
+    const hasPermission: boolean[] = [];
+    for (const scope of this.scopes) {
+      if (await reducerHandler.invoke(`${RBAC_PREFIX}:hasPermission`, {
+        address: transaction.senderAddress,
+        resource: scope.resource,
+        operation: scope.operation
+      }).then((result) => result)) {
+        hasPermission.push(true);
+      } else {
+        hasPermission.push(false);
+      }
     }
 
     // 2. Do nothing when sender account does not have role with permission roles:create
-    if (!hasPermission) {
+    if (!hasPermission.filter(elem => !elem).length) {
       throw new Error(`Account '${transaction.senderAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
     }
 
@@ -48,14 +53,14 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     const rolesList = await readRBACRolesObject(stateStore)
 
     if (!rolesList) {
-			throw new Error("ERR: no roles list in database");
+      throw new Error("ERR: no roles list in database");
     }
-    
+
     // 4. Verify that role with the same name does not exist yet
-    if (rolesList.roles.find(elem =>  asset.name.toLowerCase() === elem.name.toLowerCase())) {
+    if (rolesList.roles.find(elem => asset.name.toLowerCase() === elem.name.toLowerCase())) {
       throw new Error("Role already exists in database.");
     }
-    
+
     // 5. Construct new role record object
     const newRoleId = rolesList.latest + 1;
     const roleRecord: RBACRoleRecord = {
