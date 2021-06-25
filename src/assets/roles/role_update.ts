@@ -1,7 +1,7 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { UpdateRoleAssetProps, updateRoleAssetPropsSchema } from '../../data'
-import { readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
+import { readDefaultRBACRolesObject, readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
 import { RBAC_PREFIX } from '../../constants';
 
 export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
@@ -66,13 +66,24 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
       throw new Error(`Role with id '${asset.id}' does not exist. Role update can not be performed.`);
     }
 
-    // 5. Update role item
+    // 5. Don't allow update of default roles
+    const defaultRolesList = await readDefaultRBACRolesObject(stateStore)
+
+    if (!defaultRolesList) {
+      throw new Error("ERR: no default roles list in database");
+    }
+
+    if (defaultRolesList.roles.find(elem => elem.id === roleRecord.id)) {
+      throw new Error(`Role with id '${asset.id}' is a default role. Default roles can not be updated.`);
+    }
+
+    // 6. Update role item
     roleRecord.name = asset.name.toLowerCase();
     roleRecord.description = asset.description ? asset.description : "";
     roleRecord.inheritance = asset.inheritance;
     roleRecord.transactionId = transaction.id;
     
-    // 6. Write new set of roles to stateStore
+    // 7. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles.filter(elem => elem.id !== asset.id), roleRecord]
     rolesList.roles = rolesList.roles.sort((a, b)=> parseInt(a.id, 10)-parseInt(b.id, 10));
 
