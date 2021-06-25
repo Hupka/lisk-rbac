@@ -1,6 +1,8 @@
 import { codec, StateStore } from "lisk-sdk";
 
 import {
+  RBACAccountProps,
+  RBACAccountRoleItem,
   RBACPermissionsProps,
   RBACPermissionsPropsSchema,
   RBACRolesProps,
@@ -8,16 +10,22 @@ import {
   RBACRuleset,
   RBACRulesetRecord,
   RBACRulesetRecordSchema,
-  RBACRulesetSchema
+  RBACRulesetSchema,
+  RoleAccounts,
+  RoleAccountsSchema
 } from "./data"
 
-import { 
+import {
+  DEFAULT_ROLES,
+  GENESIS_ACCOUNTS,
   RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY,
   RBAC_DEFAULT_ROLES_STATESTORE_KEY,
-  RBAC_PERMISSIONS_STATESTORE_KEY, 
-  RBAC_ROLES_STATESTORE_KEY, 
-  RBAC_RULESET_STATESTORE_KEY, 
-  RBAC_RULESET_VERSIONS_STATESTORE_KEY 
+  RBAC_PERMISSIONS_STATESTORE_KEY,
+  RBAC_ROLES_STATESTORE_KEY,
+  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY,
+  RBAC_ROLE_LIFECYCLE_ACTIVE,
+  RBAC_RULESET_STATESTORE_KEY,
+  RBAC_RULESET_VERSIONS_STATESTORE_KEY
 } from "./constants";
 
 export const readRBACRulesetObject = async (
@@ -128,4 +136,63 @@ export const readDefaultRBACPermissionsObject = async (
   }
 
   return codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, result);
+}
+
+export const writeGenesisAccountsRoles = async (
+  stateStore: StateStore,
+): Promise<void> => {
+  for (const roleAccounts of GENESIS_ACCOUNTS) {
+    for (const address of roleAccounts.accounts) {
+
+      const account = await stateStore.account.get<RBACAccountProps>(Buffer.from(address, 'hex'));
+
+      const allRoleIds = [...roleAccounts.roles, ...account.rbac.roles.map(x => x.id)]
+      const allUniqueRoleIds = [...new Set(allRoleIds)]
+
+      const rolesData = allUniqueRoleIds.map(elem => ({ id: elem, name: DEFAULT_ROLES.roles.find(x => x.id === elem)?.name }))
+      const roles: RBACAccountRoleItem[] = [];
+      for (const role of rolesData) {
+        if (role.name !== undefined) {
+          const roleItem: RBACAccountRoleItem = {
+            id: role.id,
+            name: role.name
+          }
+
+          roles.push(roleItem)
+        }
+      }
+
+      account.rbac.roles = [...roles];
+      await stateStore.account.set(account.address, account);
+    }
+  }
+};
+
+export const writeDefaultRoleAccountsTables = async (
+  stateStore: StateStore
+): Promise<void> => {
+  // Create one stateStore entry for each default role
+  for (const role of DEFAULT_ROLES.roles) {
+    const roleAccounts: RoleAccounts = {
+      id: role.id,
+      accounts: [],
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+    }
+
+    // Iterate over all genesis accounts which get roles assigned
+    for (const roleMemberships of GENESIS_ACCOUNTS) {
+      // Check if any of the assigned roles math THIS loop's role id
+      for (const roleMembershipsRole of roleMemberships.roles) {
+        if (roleMembershipsRole === role.id) {
+          // If thats the case add all accounts of this entry
+          for (const account of roleMemberships.accounts) {
+            roleAccounts.accounts.push(Buffer.from(account, 'hex'))
+          }
+        }
+      }
+    }
+
+    // Write RoleAccounts table to stateStore
+    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+  }
 }
