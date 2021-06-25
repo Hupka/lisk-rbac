@@ -8,6 +8,8 @@ import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RB
 import { AssignRoleAsset, CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset } from './assets';
 
 import RBAC from './rbac-algorithm/algorithm';
+import { AssociatePermissionsAsset } from './assets/permissions/permissions_associate';
+import { RemovePermissionsAsset } from './assets/permissions/permissinos_remove';
 
 export class RbacModule extends BaseModule {
 
@@ -121,12 +123,14 @@ export class RbacModule extends BaseModule {
     new CreateRoleAsset(),
     new UpdateRoleAsset(),
     new DeleteRoleAsset(),
+    new AssociatePermissionsAsset(),
+    new RemovePermissionsAsset(),
   ];
 
   public accountSchema = rbacAccountPropsSchema;
 
   private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = [1,2,3];
+  private readonly assetIDsRequiringRBACReload = [1,2,3,4,5];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
@@ -192,8 +196,5 @@ export class RbacModule extends BaseModule {
 
     // Load initial ruleset into RBACSolver
     this.RBACSolver = loadRBACRuleset(genesisRbacRulesetRecord);
-
-    // eslint-disable-next-line no-console
-    console.log(this.RBACSolver.getRules());
   }
 }
