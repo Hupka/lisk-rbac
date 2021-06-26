@@ -2,12 +2,14 @@ import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, Gene
 
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
 import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeDefaultRBACRolesPermissions, writeDefaultRoleAccountsTables, writeGenesisAccountsRoles, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema } from './data';
-import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema, RoleAccounts, RoleAccountsSchema, RoleAccountsJSON } from './data';
+import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, RBAC_ROLE_LIFECYCLE_INACTIVE, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
 import { CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset, AssociatePermissionsAsset, RemovePermissionsAsset } from './assets';
 
 import RBAC from './rbac-algorithm/algorithm';
+import { AssignRoleMembershipAsset } from './assets/role_membership/role_membership_assign';
+import { RemoveRoleMembershipAsset } from './assets/role_membership/role_membership_remove';
 
 export class RbacModule extends BaseModule {
 
@@ -42,6 +44,25 @@ export class RbacModule extends BaseModule {
       }
 
       return Promise.resolve(codec.toJSON(RBACRoleRecordSchema, roleRecord));
+    },
+    getRoleAccounts: async (params: Record<string, unknown>): Promise<RoleAccountsJSON> => {
+      const { id } = params;
+
+      // Read current table of accounts per role 
+      const roleAccountsBuffer = await this._dataAccess.getChainState(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${id}`);
+      
+      // 1. Verify that role with the sent id does exist
+      if (!roleAccountsBuffer) {
+        throw new Error(`Role with id '${id as string}' does not exist.`);
+      }
+
+      const roleAccounts = codec.decode<RoleAccounts>(RoleAccountsSchema, roleAccountsBuffer);
+
+      if (roleAccounts.lifecycle === RBAC_ROLE_LIFECYCLE_INACTIVE) {
+        throw new Error(`Role with id '${id as string}' has been removed.`);
+      }
+
+      return Promise.resolve(codec.toJSON(RoleAccountsSchema, roleAccounts));
     },
     getPermissions: async (): Promise<Record<string, unknown>> => {
       const permissionsBuffer = await this._dataAccess.getChainState(RBAC_PERMISSIONS_STATESTORE_KEY);
@@ -141,6 +162,8 @@ export class RbacModule extends BaseModule {
     new DeleteRoleAsset(),
     new AssociatePermissionsAsset(),
     new RemovePermissionsAsset(),
+    new AssignRoleMembershipAsset(),
+    new RemoveRoleMembershipAsset(),
   ];
 
   public accountSchema = rbacAccountPropsSchema;
