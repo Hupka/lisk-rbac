@@ -5,7 +5,7 @@ import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, 
 import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema } from './data';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
-import { AssignRoleAsset, CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset, AssociatePermissionsAsset, RemovePermissionsAsset } from './assets';
+import { CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset, AssociatePermissionsAsset, RemovePermissionsAsset } from './assets';
 
 import RBAC from './rbac-algorithm/algorithm';
 
@@ -136,7 +136,6 @@ export class RbacModule extends BaseModule {
   public id = 7222;
 
   public transactionAssets = [
-    new AssignRoleAsset(),
     new CreateRoleAsset(),
     new UpdateRoleAsset(),
     new DeleteRoleAsset(),

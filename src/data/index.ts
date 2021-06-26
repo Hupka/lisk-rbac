@@ -1,5 +1,4 @@
 export * from './account_props'
-export * from './assets/assign_role'
 export * from './assets/roles/roles_create'
 export * from './assets/roles/roles_update'
 export * from './assets/roles/roles_delete'
