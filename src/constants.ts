@@ -116,7 +116,7 @@ export const GENESIS_ACCOUNTS: AssignRoleMembershipAssetProps[] = [
   },
   {
     roles: ["2"],
-    accounts: ["2e81a43bd35a5e01b347244859a1a6439ffa18bb"],
+    accounts: ["463e7e879b7bdc6a97ec02a2a603aa1a46a04c80"],
   },
   {
     roles: ["3"],
