@@ -2,7 +2,7 @@ import { BaseModule, AfterBlockApplyContext, AfterGenesisBlockApplyContext, Gene
 
 import { createRulesetRecord, hasPermission, isHexString, loadRBACRuleset } from './utils';
 import { readRBACPermissionsObject, readRBACRolesObject, readRBACRulesetObject, writeDefaultRBACRolesPermissions, writeDefaultRoleAccountsTables, writeGenesisAccountsRoles, writeRBACPermissionsObject, writeRBACRolesObject, writeRBACRulesetObject, writeRBACRulesetVersionObject } from './rbac_db';
-import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema, RoleAccounts, RoleAccountsSchema, RoleAccountsJSON } from './data';
+import { rbacAccountPropsSchema, RBACAccountProps, RBACRolesPropsSchema, RBACRolesProps, RBACPermissionsProps, RBACPermissionsPropsSchema, RBACAccountRoleItem, RBACRuleset, RBACRulesetSchema, RBACRulesetRecordSchema, RBACRulesetRecord, RBACRoleRecordSchema, RoleAccounts, RoleAccountsSchema } from './data';
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES, RBAC_PERMISSIONS_STATESTORE_KEY, RBAC_ROLES_STATESTORE_KEY, RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, RBAC_ROLE_LIFECYCLE_INACTIVE, RBAC_RULESET_STATESTORE_KEY, RBAC_RULESET_VERSIONS_STATESTORE_KEY } from './constants';
 
 import { CreateRoleAsset, UpdateRoleAsset, DeleteRoleAsset, AssociatePermissionsAsset, RemovePermissionsAsset } from './assets';
@@ -45,7 +45,7 @@ export class RbacModule extends BaseModule {
 
       return Promise.resolve(codec.toJSON(RBACRoleRecordSchema, roleRecord));
     },
-    getRoleAccounts: async (params: Record<string, unknown>): Promise<RoleAccountsJSON> => {
+    getRoleAccounts: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
       const { id } = params;
 
       // Read current table of accounts per role 
