@@ -22,7 +22,8 @@ export const DEFAULT_ROLES: RBACRolesProps = {
       description: "Role has permissions to change the RBAC ruleset.",
       transactionId: Buffer.from("genesis", "utf-8"),
       inheritance: [],
-      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE,
+      minAccounts: 1
     },
     {
       id: "2",
@@ -30,7 +31,8 @@ export const DEFAULT_ROLES: RBACRolesProps = {
       description: "Role has permissions to assign and remove roles from accounts.",
       transactionId: Buffer.from("genesis", "utf-8"),
       inheritance: [],
-      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE,
+      minAccounts: 1
     },
     {
       id: "3",
@@ -41,7 +43,8 @@ export const DEFAULT_ROLES: RBACRolesProps = {
         "1",
         "2"
       ],
-      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE,
+      minAccounts: 1
     }
   ],
   latest: 3

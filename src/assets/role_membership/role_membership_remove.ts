@@ -115,6 +115,10 @@ export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAss
         }
       }
 
+      if (roleAccounts.accounts.length < role.minAccounts) {
+        throw new Error(`ERR: Role with id '${role.id}' would have too few accounts assignments. Minimum account assignments: ${role.minAccounts}. Account assignments if transaction would be processed: ${roleAccounts.accounts.length}.`);
+      }
+
       await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
     }
 

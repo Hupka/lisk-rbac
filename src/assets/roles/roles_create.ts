@@ -84,7 +84,8 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       description: asset.description ? asset.description : "",
       transactionId: transaction.id,
       inheritance: asset.inheritance,
-      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
+      lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE,
+      minAccounts: 0
     }
 
     // 6. Create empty RoleAccounts table

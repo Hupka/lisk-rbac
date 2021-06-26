@@ -7,6 +7,7 @@ export interface RBACRoleRecord {
   transactionId: Buffer;
   inheritance: string[];
   lifecycle: string;
+  minAccounts: number;
 }
 
 export interface RBACRolesProps {
@@ -17,7 +18,7 @@ export interface RBACRolesProps {
 export const RBACRoleRecordSchema = {
   $id: 'rbac/chainstate/roles/record',
   type: "object",
-  required: ["id", "name", "description", "transactionId", "inheritance", "lifecycle"],
+  required: ["id", "name", "description", "transactionId", "inheritance", "lifecycle", "minAccounts"],
   properties: {
     id: {
       dataType: "string",
@@ -46,6 +47,10 @@ export const RBACRoleRecordSchema = {
       dataType: "string",
       fieldNumber: 6,
     },
+    minAccounts: {
+      dataType: "sint32",
+      fieldNumber: 7,
+    }
   }
 }
 

@@ -15,7 +15,7 @@ import { readRBACRolesObject } from '../../rbac_db';
 import { isHexString } from '../../utils';
 
 export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAssetProps> {
-  public name = 'role_membership:create';
+  public name = 'role_membership:assign';
   public id = 6;
   public scopes = [{ resource: "role_membership", operation: "create" }];
 

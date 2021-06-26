@@ -192,6 +192,10 @@ export const writeDefaultRoleAccountsTables = async (
       }
     }
 
+    if (roleAccounts.accounts.length < role.minAccounts) {
+      throw new Error(`ERR: Role with id '${role.id}' has too few accounts assigned. Minimum account assignments: ${role.minAccounts}. Current account assignments: ${roleAccounts.accounts.length}.`);
+    }
+
     // Write RoleAccounts table to stateStore
     await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
   }
