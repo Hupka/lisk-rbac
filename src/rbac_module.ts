@@ -49,8 +49,8 @@ export class RbacModule extends BaseModule {
       const { id } = params;
 
       // Read current table of accounts per role 
-      const roleAccountsBuffer = await this._dataAccess.getChainState(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${id}`);
-      
+      const roleAccountsBuffer = await this._dataAccess.getChainState(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${id as string}`);
+
       // 1. Verify that role with the sent id does exist
       if (!roleAccountsBuffer) {
         throw new Error(`Role with id '${id as string}' does not exist.`);
