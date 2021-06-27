@@ -91,7 +91,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     // 6. Create empty RoleAccounts table
     const roleAccounts: RoleAccounts = {
       id: roleRecord.id,
-      accounts: [],
+      addresses: [],
       lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
     await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(roleAccountsSchema, roleAccounts));

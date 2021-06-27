@@ -229,20 +229,20 @@ export const rbacRulesetSchema = {
 
 export interface RoleAccounts {
   id: string;
-  accounts: Buffer[];
+  addresses: Buffer[];
   lifecycle: string;
 }
 
 export const roleAccountsSchema = {
   $id: 'rbac/chainstate/roleAccounts',
   type: "object",
-  required: ["id", "accounts", "lifecycle"],
+  required: ["id", "addresses", "lifecycle"],
   properties: {
     id: {
       fieldNumber: 1,
       dataType: "string",
     },
-    accounts: {
+    addresses: {
       fieldNumber: 2,
       type: "array",
       items: {

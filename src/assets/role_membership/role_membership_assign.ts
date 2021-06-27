@@ -25,15 +25,15 @@ export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAss
       throw new Error(`No role is included. Include at least one role for assignment.`);
     }
 
-    if (asset.roles.length > 30 || asset.accounts.length > 30) {
-      throw new Error(`Don't submit more than 30 accounts and 30 roles per transaction. You are attemting to submit ${asset.accounts.length} accounts and ${asset.roles.length} roles in this transaction.`);
+    if (asset.roles.length > 30 || asset.addresses.length > 30) {
+      throw new Error(`Don't submit more than 30 accounts and 30 roles per transaction. You are attemting to submit ${asset.addresses.length} accounts and ${asset.roles.length} roles in this transaction.`);
     }
 
-    if (asset.accounts === []) {
+    if (asset.addresses === []) {
       throw new Error(`No account is included. Include at least one account for assignment.`);
     }
 
-    for (const address of asset.accounts) {
+    for (const address of asset.addresses) {
       if (typeof address === 'string' && !isHexString(address)) {
         throw new Error('Address parameter should be a hex string.');
       }
@@ -62,13 +62,13 @@ export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAss
     }
 
     // 2. Remove duplicate accounts and roles in transaction
-    const assetAccounts: string[] = [...new Set(asset.accounts)]
+    const assetAccountAddresses: string[] = [...new Set(asset.addresses)]
     const assetRoles: string[] = [...new Set(asset.roles)]
 
     // 3.1 Load all accounts which should get roles assigned
     const accounts: Account<RBACAccountProps>[] = [];
-    for (const account of assetAccounts) {
-      accounts.push(await stateStore.account.get<RBACAccountProps>(Buffer.from(account, 'hex')));
+    for (const accountAddress of assetAccountAddresses) {
+      accounts.push(await stateStore.account.get<RBACAccountProps>(Buffer.from(accountAddress, 'hex')));
     }
 
     // 3.2 Load all roles to be assigned
@@ -107,8 +107,8 @@ export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAss
 
       // Insert all new accounts 
       for (const account of accounts) {
-        if (!roleAccounts.accounts.find(elem => Buffer.compare(elem, account.address) === 0 )) {
-          roleAccounts.accounts.push(account.address);
+        if (!roleAccounts.addresses.find(elem => Buffer.compare(elem, account.address) === 0 )) {
+          roleAccounts.addresses.push(account.address);
         }
       }
 

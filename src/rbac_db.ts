@@ -142,7 +142,7 @@ export const writeGenesisAccountsRoles = async (
   stateStore: StateStore,
 ): Promise<void> => {
   for (const roleAccounts of GENESIS_ACCOUNTS) {
-    for (const address of roleAccounts.accounts) {
+    for (const address of roleAccounts.addresses) {
 
       const account = await stateStore.account.get<RBACAccountProps>(Buffer.from(address, 'hex'));
 
@@ -175,7 +175,7 @@ export const writeDefaultRoleAccountsTables = async (
   for (const role of DEFAULT_ROLES.roles) {
     const roleAccounts: RoleAccounts = {
       id: role.id,
-      accounts: [],
+      addresses: [],
       lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
 
@@ -185,15 +185,15 @@ export const writeDefaultRoleAccountsTables = async (
       for (const roleMembershipsRole of roleMemberships.roles) {
         if (roleMembershipsRole === role.id) {
           // If thats the case add all accounts of this entry
-          for (const account of roleMemberships.accounts) {
-            roleAccounts.accounts.push(Buffer.from(account, 'hex'))
+          for (const account of roleMemberships.addresses) {
+            roleAccounts.addresses.push(Buffer.from(account, 'hex'))
           }
         }
       }
     }
 
-    if (roleAccounts.accounts.length < role.minAccounts) {
-      throw new Error(`ERR: Role with id '${role.id}' has too few accounts assigned. Minimum account assignments: ${role.minAccounts}. Current account assignments: ${roleAccounts.accounts.length}.`);
+    if (roleAccounts.addresses.length < role.minAccounts) {
+      throw new Error(`ERR: Role with id '${role.id}' has too few accounts assigned. Minimum account assignments: ${role.minAccounts}. Current account assignments: ${roleAccounts.addresses.length}.`);
     }
 
     // Write RoleAccounts table to stateStore

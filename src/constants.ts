@@ -123,15 +123,15 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
 export const GENESIS_ACCOUNTS: AssignRoleMembershipAssetProps[] = [
   {
     roles: ["1"],
-    accounts: ["9cabee3d27426676b852ce6b804cb2fdff7cd0b5"],
+    addresses: ["9cabee3d27426676b852ce6b804cb2fdff7cd0b5"],
   },
   {
     roles: ["2"],
-    accounts: ["463e7e879b7bdc6a97ec02a2a603aa1a46a04c80"],
+    addresses: ["463e7e879b7bdc6a97ec02a2a603aa1a46a04c80"],
   },
   {
     roles: ["3"],
-    accounts: ["d04699e57c4a3846c988f3c15306796f8eae5c1c"],
+    addresses: ["d04699e57c4a3846c988f3c15306796f8eae5c1c"],
   },
 ]
 
