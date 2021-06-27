@@ -87,7 +87,7 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
           id: (permissionsList.latest+1).toString(),
           associatedRoleIds: [asset.roleId],
           resourceName: permission.resourceName,
-          operationName: permission.resourceName,
+          operationName: permission.operationName,
           transactionId: transaction.id,
           description: permission.description
         })
