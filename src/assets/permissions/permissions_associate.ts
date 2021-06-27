@@ -89,6 +89,7 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
           resourceName: permission.resourceName,
           operationName: permission.resourceName,
           transactionId: transaction.id,
+          description: permission.description
         })
         permissionsList.latest+=1; 
       }

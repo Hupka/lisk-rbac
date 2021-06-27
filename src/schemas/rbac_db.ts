@@ -80,6 +80,7 @@ export interface RBACPermissionRecord {
   associatedRoleIds: string[];
   resourceName: string;
   operationName: string;
+  description: string;
   transactionId: Buffer;
 }
 
@@ -91,7 +92,7 @@ export interface RBACPermissionsProps {
 export const rbacPermissionRecordSchema = {
   $id: 'rbac/chainstate/permissions/record',
   type: "object",
-  required: ["id", "associatedRoleIds", "resourceName", "operationName", "transactionId"],
+  required: ["id", "associatedRoleIds", "resourceName", "operationName", "description", "transactionId"],
   properties: {
     id: {
       dataType: "string",
@@ -112,9 +113,13 @@ export const rbacPermissionRecordSchema = {
       dataType: "string",
       fieldNumber: 4,
     },
+    description: {
+      dataType: "string",
+      fieldNumber: 5,
+    },
     transactionId: {
       dataType: "bytes",
-      fieldNumber: 5,
+      fieldNumber: 6,
     }
   }
 }

@@ -1,8 +1,27 @@
-import { permissionAssetSchema, PermissionAsset } from './permission_associate'
+export interface PermissionAssetRed {
+  resourceName: string;
+  operationName: string;
+}
 
 export interface RemovePermissionsAssetProps {
 	roleId: string;
-  permissions: PermissionAsset[];
+  permissions: PermissionAssetRed[];
+}
+
+export const permissionAssetRedSchema = {
+  $id: 'rbac/assets/permissions/redRecord',
+  type: "object",
+  required: ["resourceName", "operationName"],
+  properties: {
+    resourceName: {
+      dataType: "string",
+      fieldNumber: 1,
+    },
+    operationName: {
+      dataType: "string",
+      fieldNumber: 2,
+    }
+  }
 }
 
 export const removePermissionsAssetPropsSchema = {
@@ -19,7 +38,7 @@ export const removePermissionsAssetPropsSchema = {
       type: "array",
       fieldNumber: 2,
       items: {
-        ...permissionAssetSchema,
+        ...permissionAssetRedSchema,
       }
     },
   }

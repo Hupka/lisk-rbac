@@ -57,6 +57,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["1", "2"],
       resourceName: "roles",
       operationName: "read",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -64,6 +65,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["1"],
       resourceName: "roles",
       operationName: "create",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -71,6 +73,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["1"],
       resourceName: "roles",
       operationName: "update",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -78,6 +81,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["1"],
       resourceName: "roles",
       operationName: "delete",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -85,6 +89,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["2"],
       resourceName: "role_membership",
       operationName: "read",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -92,6 +97,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["2"],
       resourceName: "role_membership",
       operationName: "create",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -99,6 +105,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["2"],
       resourceName: "role_membership",
       operationName: "delete",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
@@ -106,6 +113,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       associatedRoleIds: ["3"],
       resourceName: "rulesets",
       operationName: "setversion",
+      description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     }
   ],
