@@ -54,70 +54,54 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
   permissions: [
     {
       id: "1",
-      associatedRoleIds: ["1", "2"],
+      associatedRoleIds: ["1"],
       resource: "roles",
-      operation: "read",
-      description: "",
+      operation: "create",
+      description: "Grants permission to create new roles.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "2",
       associatedRoleIds: ["1"],
       resource: "roles",
-      operation: "create",
-      description: "",
+      operation: "update",
+      description: "Grants permission to update existing roles. This includes adding and removing permissions from roles.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "3",
       associatedRoleIds: ["1"],
       resource: "roles",
-      operation: "update",
-      description: "",
+      operation: "delete",
+      description: "Grants permission to delete existing roles.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "4",
-      associatedRoleIds: ["1"],
-      resource: "roles",
-      operation: "delete",
-      description: "",
+      associatedRoleIds: ["2"],
+      resource: "role_membership",
+      operation: "create",
+      description: "Grants permission to assign an account a role.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "5",
       associatedRoleIds: ["2"],
       resource: "role_membership",
-      operation: "read",
-      description: "",
+      operation: "delete",
+      description: "Grants permission to remove a role from an account.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "6",
-      associatedRoleIds: ["2"],
-      resource: "role_membership",
-      operation: "create",
-      description: "",
-      transactionId: Buffer.from("genesis", "utf-8")
-    },
-    {
-      id: "7",
-      associatedRoleIds: ["2"],
-      resource: "role_membership",
-      operation: "delete",
-      description: "",
-      transactionId: Buffer.from("genesis", "utf-8")
-    },
-    {
-      id: "8",
       associatedRoleIds: ["3"],
       resource: "rulesets",
       operation: "setversion",
-      description: "",
+      description: "Grants permission to restore a previous ruleset version.",
       transactionId: Buffer.from("genesis", "utf-8")
     }
   ],
-  latest: 8
+  latest: 6
 }
 
 export const GENESIS_ACCOUNTS: AssignRoleMembershipAssetProps[] = [
