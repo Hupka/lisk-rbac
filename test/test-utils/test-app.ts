@@ -14,7 +14,7 @@ updatedGenesisBlock.header.asset.accounts = updatedGenesisBlock.header.asset.acc
   }),
 );
 
-// Modify genesisConfig to include the default ruleset as a custom parameter
+// Modify genesisConfig to include the genesis rbac admin accounts  as a custom parameter
 const appConfig = utils.objects.mergeDeep({}, configDevnet, {
   label: 'lisk-rbac-test-app',
   rpc: {
@@ -22,10 +22,26 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
     enable: true
   },
   logger: {
-		fileLogLevel: "info",
-		consoleLogLevel: "info",
-		logFileName: "lisk.log"
-	},
+    fileLogLevel: "info",
+    consoleLogLevel: "info",
+    logFileName: "lisk.log"
+  },
+  genesisConfig: {
+    rbacConfig: {
+      genesisAccounts: [{
+        roles: ["1"],
+        addresses: ["9cabee3d27426676b852ce6b804cb2fdff7cd0b5"],
+      },
+      {
+        roles: ["2"],
+        addresses: ["463e7e879b7bdc6a97ec02a2a603aa1a46a04c80"],
+      },
+      {
+        roles: ["3"],
+        addresses: ["d04699e57c4a3846c988f3c15306796f8eae5c1c"],
+      }]
+    }
+  },
   plugins: {
     httpApi: {
       port: 4000,

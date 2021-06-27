@@ -29,6 +29,7 @@ import {
 } from './lifecycle_hooks';
 import { RBACEngine } from './rbac_algorithm';
 import {
+  GenesisAccountsType,
   rbacAccountPropsSchema,
   RBACAccountRoleItem
 } from './schemas';
@@ -75,9 +76,12 @@ export class RbacModule extends BaseModule {
     4, /* AssociatePermissionsAsset */
     5  /* RemovePermissionsAsset */
   ];
+  private readonly genesisRbacAccounts: GenesisAccountsType;
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);
+
+    this.genesisRbacAccounts = genesisConfig.rbacConfig as GenesisAccountsType;
   }
 
   // Lifecycle hooks
@@ -86,6 +90,6 @@ export class RbacModule extends BaseModule {
   }
 
   public async afterGenesisBlockApply(_input: AfterGenesisBlockApplyContext): Promise<void> {
-    this.RBACSolver = await afterGenesisBlockApplyLifecycleHook(_input);
+    this.RBACSolver = await afterGenesisBlockApplyLifecycleHook(this.genesisRbacAccounts, _input);
   }
 }

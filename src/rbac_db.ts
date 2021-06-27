@@ -1,6 +1,7 @@
 import { codec, StateStore } from "lisk-sdk";
 
 import {
+  GenesisAccountsType,
   RBACAccountProps,
   RBACAccountRoleItem,
   RBACPermissionsProps,
@@ -17,7 +18,6 @@ import {
 
 import {
   DEFAULT_ROLES,
-  GENESIS_ACCOUNTS,
   RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY,
   RBAC_DEFAULT_ROLES_STATESTORE_KEY,
   RBAC_PERMISSIONS_STATESTORE_KEY,
@@ -139,9 +139,10 @@ export const readDefaultRBACPermissionsObject = async (
 }
 
 export const writeGenesisAccountsRoles = async (
+  genesisAccounts: GenesisAccountsType,
   stateStore: StateStore,
 ): Promise<void> => {
-  for (const roleAccounts of GENESIS_ACCOUNTS) {
+  for (const roleAccounts of genesisAccounts.genesisAccounts) {
     for (const address of roleAccounts.addresses) {
 
       const account = await stateStore.account.get<RBACAccountProps>(Buffer.from(address, 'hex'));
@@ -169,6 +170,7 @@ export const writeGenesisAccountsRoles = async (
 };
 
 export const writeDefaultRoleAccountsTables = async (
+  genesisAccounts: GenesisAccountsType,
   stateStore: StateStore
 ): Promise<void> => {
   // Create one stateStore entry for each default role
@@ -180,7 +182,7 @@ export const writeDefaultRoleAccountsTables = async (
     }
 
     // Iterate over all genesis accounts which get roles assigned
-    for (const roleMemberships of GENESIS_ACCOUNTS) {
+    for (const roleMemberships of genesisAccounts.genesisAccounts) {
       // Check if any of the assigned roles math THIS loop's role id
       for (const roleMembershipsRole of roleMemberships.roles) {
         if (roleMembershipsRole === role.id) {

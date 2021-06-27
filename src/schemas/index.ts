@@ -7,3 +7,10 @@ export * from './assets/permissions/permission_remove'
 export * from './assets/role_membership/role_membership_remove'
 export * from './assets/role_membership/role_membership_assign'
 export * from './rbac_db'
+
+export type GenesisAccountsType = {
+  genesisAccounts: [{
+    roles: string[]; 
+    addresses: string[];
+  }];
+}

@@ -1,4 +1,4 @@
-import { AssignRoleMembershipAssetProps, RBACPermissionsProps, RBACRolesProps } from "./schemas";
+import { RBACPermissionsProps, RBACRolesProps } from "./schemas";
 
 export const RBAC_PREFIX = "rbac"
 export const RBAC_RULESET_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset`;
@@ -103,20 +103,3 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
   ],
   latest: 6
 }
-
-export const GENESIS_ACCOUNTS: AssignRoleMembershipAssetProps[] = [
-  {
-    roles: ["1"],
-    addresses: ["9cabee3d27426676b852ce6b804cb2fdff7cd0b5"],
-  },
-  {
-    roles: ["2"],
-    addresses: ["463e7e879b7bdc6a97ec02a2a603aa1a46a04c80"],
-  },
-  {
-    roles: ["3"],
-    addresses: ["d04699e57c4a3846c988f3c15306796f8eae5c1c"],
-  },
-]
-
-

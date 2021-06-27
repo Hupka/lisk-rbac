@@ -10,18 +10,19 @@ import {
   writeRBACRulesetObject,
   writeRBACRulesetVersionObject
 } from "../rbac_db";
+import { GenesisAccountsType } from "../schemas";
 import { createRulesetRecord, loadRBACRuleset } from "../utils";
 
 
-export const afterGenesisBlockApplyLifecycleHook = async (context: AfterGenesisBlockApplyContext): Promise<RBACEngine> => {
+export const afterGenesisBlockApplyLifecycleHook = async (genesisAccounts: GenesisAccountsType, context: AfterGenesisBlockApplyContext): Promise<RBACEngine> => {
 
   const genesisRbacRulesetVersion = 0;
   const genesisRbacRulesetRecord = createRulesetRecord(DEFAULT_ROLES, DEFAULT_PERMISSIONS, context.genesisBlock.header.id, genesisRbacRulesetVersion)
 
   // write DEFAULT_ROLES and DEFAULT_PERMISSIONS to stateStore
   await writeDefaultRBACRolesPermissions(context.stateStore, DEFAULT_ROLES, DEFAULT_PERMISSIONS)
-  await writeGenesisAccountsRoles(context.stateStore);
-  await writeDefaultRoleAccountsTables(context.stateStore);
+  await writeGenesisAccountsRoles(genesisAccounts, context.stateStore);
+  await writeDefaultRoleAccountsTables(genesisAccounts, context.stateStore);
 
   // Write first database entries for roles/permissions/rulesets
   await writeRBACRolesObject(context.stateStore, DEFAULT_ROLES);
