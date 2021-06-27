@@ -15,7 +15,7 @@ export interface RBACRolesProps {
   latest: number;
 }
 
-export const RBACRoleRecordSchema = {
+export const rbacRoleRecordSchema = {
   $id: 'rbac/chainstate/roles/record',
   type: "object",
   required: ["id", "name", "description", "transactionId", "inheritance", "lifecycle", "minAccounts"],
@@ -54,7 +54,7 @@ export const RBACRoleRecordSchema = {
   }
 }
 
-export const RBACRolesPropsSchema = {
+export const rbacRolesPropsSchema = {
   $id: 'rbac/chainstate/roles',
   type: "object",
   required: ["roles", "latest"],
@@ -63,7 +63,7 @@ export const RBACRolesPropsSchema = {
       type: "array",
       fieldNumber: 1,
       items: {
-        ...RBACRoleRecordSchema,
+        ...rbacRoleRecordSchema,
       },
     },
     latest: {
@@ -88,7 +88,7 @@ export interface RBACPermissionsProps {
   latest: number;
 }
 
-export const RBACPermissionRecordSchema = {
+export const rbacPermissionRecordSchema = {
   $id: 'rbac/chainstate/permissions/record',
   type: "object",
   required: ["id", "associatedRoleIds", "resourceName", "operationName", "transactionId"],
@@ -119,7 +119,7 @@ export const RBACPermissionRecordSchema = {
   }
 }
 
-export const RBACPermissionsPropsSchema = {
+export const rbacPermissionsPropsSchema = {
   $id: 'rbac/chainstate/permissions',
   type: "object",
   required: ["permissions", "latest"],
@@ -128,7 +128,7 @@ export const RBACPermissionsPropsSchema = {
       type: "array",
       fieldNumber: 1,
       items: {
-        ...RBACPermissionRecordSchema,
+        ...rbacPermissionRecordSchema,
       }
     },
     latest: {
@@ -157,27 +157,27 @@ export interface RBACRuleset {
   latestVersion: number;
 }
 
-export const RBACRulesetRoleRecordSchema = {
+export const rbacRulesetRoleRecordSchema = {
   $id: 'rbac/chainstate/ruleset/role/record',
   type: "object",
   required: ["role", "permissions"],
   properties: {
     role: {
       fieldNumber: 1,
-      ...RBACRoleRecordSchema,
+      ...rbacRoleRecordSchema,
 
     },
     permissions: {
       type: "array",
       fieldNumber: 2,
       items: {
-        ...RBACPermissionRecordSchema,
+        ...rbacPermissionRecordSchema,
       }
     },
   }
 }
 
-export const RBACRulesetRecordSchema = {
+export const rbacRulesetRecordSchema = {
   $id: 'rbac/chainstate/rulesets/record',
   type: "object",
   required: ["roles", "version", "blockId"],
@@ -186,7 +186,7 @@ export const RBACRulesetRecordSchema = {
       type: "array",
       fieldNumber: 1,
       items: {
-        ...RBACRulesetRoleRecordSchema,
+        ...rbacRulesetRoleRecordSchema,
       }
     },
     version: {
@@ -200,14 +200,14 @@ export const RBACRulesetRecordSchema = {
   }
 }
 
-export const RBACRulesetSchema = {
+export const rbacRulesetSchema = {
   $id: 'rbac/chainstate/rulesets',
   type: "object",
   required: ["ruleset", "activeVersion", "latestVersion"],
   properties: {
     ruleset: {
       fieldNumber: 1,
-      ...RBACRulesetRecordSchema,
+      ...rbacRulesetRecordSchema,
     },
     activeVersion: {
       dataType: "sint32",
@@ -228,7 +228,7 @@ export interface RoleAccounts {
   lifecycle: string;
 }
 
-export const RoleAccountsSchema = {
+export const roleAccountsSchema = {
   $id: 'rbac/chainstate/roleAccounts',
   type: "object",
   required: ["id", "accounts", "lifecycle"],

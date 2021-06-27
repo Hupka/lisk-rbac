@@ -1,6 +1,6 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { RemovePermissionsAssetProps, removePermissionsAssetPropsSchema } from '../../data'
+import { RemovePermissionsAssetProps, removePermissionsAssetPropsSchema } from '../../schemas'
 import { readDefaultRBACPermissionsObject, readDefaultRBACRolesObject, readRBACPermissionsObject, writeRBACPermissionsObject } from '../../rbac_db';
 import { RBAC_PREFIX } from '../../constants';
 

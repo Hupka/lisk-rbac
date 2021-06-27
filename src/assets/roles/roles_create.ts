@@ -11,8 +11,8 @@ import {
   createRoleAssetPropsSchema, 
   RBACRoleRecord, 
   RoleAccounts, 
-  RoleAccountsSchema 
-} from '../../data'
+  roleAccountsSchema 
+} from '../../schemas'
 
 import { 
   readRBACRolesObject, 
@@ -94,7 +94,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       accounts: [],
       lifecycle: RBAC_ROLE_LIFECYCLE_ACTIVE
     }
-    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(roleAccountsSchema, roleAccounts));
 
     // 7. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles, roleRecord]

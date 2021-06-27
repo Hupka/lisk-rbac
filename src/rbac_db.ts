@@ -4,16 +4,16 @@ import {
   RBACAccountProps,
   RBACAccountRoleItem,
   RBACPermissionsProps,
-  RBACPermissionsPropsSchema,
+  rbacPermissionsPropsSchema,
   RBACRolesProps,
-  RBACRolesPropsSchema,
+  rbacRolesPropsSchema,
   RBACRuleset,
   RBACRulesetRecord,
-  RBACRulesetRecordSchema,
-  RBACRulesetSchema,
+  rbacRulesetRecordSchema,
+  rbacRulesetSchema,
   RoleAccounts,
-  RoleAccountsSchema
-} from "./data"
+  roleAccountsSchema
+} from "./schemas"
 
 import {
   DEFAULT_ROLES,
@@ -37,14 +37,14 @@ export const readRBACRulesetObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACRuleset>(RBACRulesetSchema, result);
+  return codec.decode<RBACRuleset>(rbacRulesetSchema, result);
 };
 
 export const writeRBACRulesetObject = async (
   stateStore: StateStore,
   rulesets: RBACRuleset,
 ): Promise<void> => {
-  await stateStore.chain.set(RBAC_RULESET_STATESTORE_KEY, codec.encode(RBACRulesetSchema, rulesets));
+  await stateStore.chain.set(RBAC_RULESET_STATESTORE_KEY, codec.encode(rbacRulesetSchema, rulesets));
 };
 
 export const readRBACRulesetVersionObject = async (
@@ -57,14 +57,14 @@ export const readRBACRulesetVersionObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACRulesetRecord>(RBACRulesetRecordSchema, result);
+  return codec.decode<RBACRulesetRecord>(rbacRulesetRecordSchema, result);
 };
 
 export const writeRBACRulesetVersionObject = async (
   stateStore: StateStore,
   ruleset: RBACRulesetRecord
 ): Promise<void> => {
-  await stateStore.chain.set(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${ruleset.version}`, codec.encode(RBACRulesetRecordSchema, ruleset));
+  await stateStore.chain.set(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${ruleset.version}`, codec.encode(rbacRulesetRecordSchema, ruleset));
 };
 
 export const readRBACRolesObject = async (
@@ -76,14 +76,14 @@ export const readRBACRolesObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACRolesProps>(RBACRolesPropsSchema, result);
+  return codec.decode<RBACRolesProps>(rbacRolesPropsSchema, result);
 }
 
 export const writeRBACRolesObject = async (
   stateStore: StateStore,
   roles: RBACRolesProps,
 ): Promise<void> => {
-  await stateStore.chain.set(RBAC_ROLES_STATESTORE_KEY, codec.encode(RBACRolesPropsSchema, roles));
+  await stateStore.chain.set(RBAC_ROLES_STATESTORE_KEY, codec.encode(rbacRolesPropsSchema, roles));
 };
 
 export const readRBACPermissionsObject = async (
@@ -95,14 +95,14 @@ export const readRBACPermissionsObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, result);
+  return codec.decode<RBACPermissionsProps>(rbacPermissionsPropsSchema, result);
 }
 
 export const writeRBACPermissionsObject = async (
   stateStore: StateStore,
   permissions: RBACPermissionsProps,
 ): Promise<void> => {
-  await stateStore.chain.set(RBAC_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
+  await stateStore.chain.set(RBAC_PERMISSIONS_STATESTORE_KEY, codec.encode(rbacPermissionsPropsSchema, permissions));
 };
 
 export const writeDefaultRBACRolesPermissions = async (
@@ -110,8 +110,8 @@ export const writeDefaultRBACRolesPermissions = async (
   roles: RBACRolesProps,
   permissions: RBACPermissionsProps,
 ): Promise<void> => {
-  await stateStore.chain.set(RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY, codec.encode(RBACPermissionsPropsSchema, permissions));
-  await stateStore.chain.set(RBAC_DEFAULT_ROLES_STATESTORE_KEY, codec.encode(RBACRolesPropsSchema, roles));
+  await stateStore.chain.set(RBAC_DEFAULT_PERMISSIONS_STATESTORE_KEY, codec.encode(rbacPermissionsPropsSchema, permissions));
+  await stateStore.chain.set(RBAC_DEFAULT_ROLES_STATESTORE_KEY, codec.encode(rbacRolesPropsSchema, roles));
 };
 
 export const readDefaultRBACRolesObject = async (
@@ -123,7 +123,7 @@ export const readDefaultRBACRolesObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACRolesProps>(RBACRolesPropsSchema, result);
+  return codec.decode<RBACRolesProps>(rbacRolesPropsSchema, result);
 }
 
 export const readDefaultRBACPermissionsObject = async (
@@ -135,7 +135,7 @@ export const readDefaultRBACPermissionsObject = async (
     return undefined;
   }
 
-  return codec.decode<RBACPermissionsProps>(RBACPermissionsPropsSchema, result);
+  return codec.decode<RBACPermissionsProps>(rbacPermissionsPropsSchema, result);
 }
 
 export const writeGenesisAccountsRoles = async (
@@ -197,6 +197,6 @@ export const writeDefaultRoleAccountsTables = async (
     }
 
     // Write RoleAccounts table to stateStore
-    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+    await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(roleAccountsSchema, roleAccounts));
   }
 }

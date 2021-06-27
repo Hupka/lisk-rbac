@@ -1,4 +1,4 @@
-import { AssignRoleMembershipAssetProps, RBACPermissionsProps, RBACRolesProps } from "./data";
+import { AssignRoleMembershipAssetProps, RBACPermissionsProps, RBACRolesProps } from "./schemas";
 
 export const RBAC_PREFIX = "rbac"
 export const RBAC_RULESET_STATESTORE_KEY = `${RBAC_PREFIX}:ruleset`;

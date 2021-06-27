@@ -1,25 +1,16 @@
-import { BaseAsset, ApplyAssetContext, ValidateAssetContext, codec } from 'lisk-sdk';
 import { Account } from '@liskhq/lisk-chain';
-
+import { isHexString } from '@liskhq/lisk-validator';
+import { ApplyAssetContext, BaseAsset, codec, ValidateAssetContext } from 'lisk-sdk';
+import { RBAC_PREFIX, RBAC_ROLE_ACCOUNTS_STATESTORE_KEY } from '../../constants';
+import { readRBACRolesObject } from '../../rbac_db';
 import {
-  RemoveRoleMembershipAssetProps,
-  RoleAccounts,
-  RoleAccountsSchema,
-  removeRoleMembershipAssetPropsSchema,
   RBACAccountProps,
   RBACRoleRecord,
-} from '../../data';
-
-import {
-  readRBACRolesObject,
-} from '../../rbac_db';
-
-import {
-  RBAC_PREFIX,
-  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY,
-} from '../../constants';
-
-import { isHexString } from '../../utils';
+  RemoveRoleMembershipAssetProps,
+  removeRoleMembershipAssetPropsSchema,
+  RoleAccounts,
+  roleAccountsSchema
+} from '../../schemas';
 
 export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAssetProps> {
   public name = 'role_membership:remove';
@@ -105,7 +96,7 @@ export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAss
       if (!roleAccountsBuffer) {
         throw new Error("ERR: no roles list in database");
       }
-      const roleAccounts = codec.decode<RoleAccounts>(RoleAccountsSchema, roleAccountsBuffer);
+      const roleAccounts = codec.decode<RoleAccounts>(roleAccountsSchema, roleAccountsBuffer);
 
       // Remove all accounts from this transaction
       for (const account of accounts) {
@@ -119,7 +110,7 @@ export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAss
         throw new Error(`ERR: Role with id '${role.id}' would have too few accounts assignments. Minimum account assignments: ${role.minAccounts}. Account assignments if transaction would be processed: ${roleAccounts.accounts.length}.`);
       }
 
-      await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+      await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(roleAccountsSchema, roleAccounts));
     }
 
     // 5. Remove roles from users

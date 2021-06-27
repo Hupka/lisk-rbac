@@ -1,7 +1,7 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
 import { RBAC_PREFIX } from '../../constants';
-import { AssociatePermissionsAssetProps, associatePermissionsAssetPropsSchema } from '../../data'
+import { AssociatePermissionsAssetProps, associatePermissionsAssetPropsSchema } from '../../schemas'
 import { readRBACPermissionsObject, readRBACRolesObject, writeRBACPermissionsObject } from '../../rbac_db';
 
 export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAssetProps> {

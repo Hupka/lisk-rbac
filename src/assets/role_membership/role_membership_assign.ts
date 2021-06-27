@@ -1,18 +1,16 @@
 import { Account } from '@liskhq/lisk-chain';
-import { BaseAsset, ApplyAssetContext, ValidateAssetContext, codec } from 'lisk-sdk';
-
+import { isHexString } from '@liskhq/lisk-validator';
+import { ApplyAssetContext, BaseAsset, codec, ValidateAssetContext } from 'lisk-sdk';
+import { RBAC_PREFIX, RBAC_ROLE_ACCOUNTS_STATESTORE_KEY } from '../../constants';
+import { readRBACRolesObject } from '../../rbac_db';
 import {
-  assignRoleMembershipAssetPropsSchema,
-  AssignRoleMembershipAssetProps,
+  AssignRoleMembershipAssetProps, 
+  assignRoleMembershipAssetPropsSchema, 
   RBACAccountProps,
   RBACRoleRecord,
   RoleAccounts,
-  RoleAccountsSchema,
-} from '../../data';
-
-import { RBAC_PREFIX, RBAC_ROLE_ACCOUNTS_STATESTORE_KEY } from '../../constants';
-import { readRBACRolesObject } from '../../rbac_db';
-import { isHexString } from '../../utils';
+  roleAccountsSchema
+} from '../../schemas';
 
 export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAssetProps> {
   public name = 'role_membership:assign';
@@ -105,7 +103,7 @@ export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAss
       if (!roleAccountsBuffer) {
         throw new Error("ERR: no roles list in database");
       }
-      const roleAccounts = codec.decode<RoleAccounts>(RoleAccountsSchema, roleAccountsBuffer);
+      const roleAccounts = codec.decode<RoleAccounts>(roleAccountsSchema, roleAccountsBuffer);
 
       // Insert all new accounts 
       for (const account of accounts) {
@@ -114,7 +112,7 @@ export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAss
         }
       }
 
-      await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(RoleAccountsSchema, roleAccounts));
+      await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${role.id}`, codec.encode(roleAccountsSchema, roleAccounts));
     }
 
     // 7. Assign roles to users

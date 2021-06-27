@@ -7,7 +7,7 @@ import {
   RBACRolesProps,
   RBACRulesetRecord,
   RBACRulesetRuleRecord,
-} from "./data"
+} from "./schemas"
 
 import RBAC from './rbac-algorithm/algorithm';
 
@@ -83,11 +83,3 @@ export const hasPermission = (
     }
     return false;
 }
-
-export const isHexString = (data: unknown): boolean => {
-	if (typeof data !== 'string') {
-		return false;
-	}
-
-	return data === '' || /^[a-f0-9]+$/i.test(data);
-};
