@@ -1,15 +1,6 @@
-import {
-  BaseModuleDataAccess,
-  codec
-} from 'lisk-sdk';
+import { BaseModuleDataAccess, codec } from 'lisk-sdk';
 import { RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, RBAC_ROLE_LIFECYCLE_INACTIVE } from '../constants';
-import {
-  RoleAccounts,
-  roleAccountsSchema
-} from '../schemas';
-
-
-
+import { RoleAccounts, roleAccountsSchema } from '../schemas';
 
 export const getRoleAccountsAction = async (id: string, chainGetter: BaseModuleDataAccess): Promise<Record<string, unknown>> => {
   // Read current table of accounts per role 

@@ -1,13 +1,6 @@
-import {
-  BaseModuleDataAccess,
-  codec
-} from 'lisk-sdk';
+import { BaseModuleDataAccess, codec } from 'lisk-sdk';
 import { RBAC_RULESET_STATESTORE_KEY } from '../constants';
-import {
-  RBACRuleset,
-  rbacRulesetRecordSchema,
-  rbacRulesetSchema
-} from '../schemas';
+import { RBACRuleset, rbacRulesetRecordSchema, rbacRulesetSchema } from '../schemas';
 
 export const getActiveRulesetAction = async (chainGetter: BaseModuleDataAccess): Promise<Record<string, unknown>> => {
   const rulesetBuffer = await chainGetter.getChainState(RBAC_RULESET_STATESTORE_KEY);

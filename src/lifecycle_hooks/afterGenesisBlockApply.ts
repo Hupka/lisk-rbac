@@ -1,6 +1,6 @@
 import { AfterGenesisBlockApplyContext } from "lisk-sdk";
 import { DEFAULT_PERMISSIONS, DEFAULT_ROLES } from "../constants";
-import { RBACEngine } from '../rbac-algorithm/algorithm';
+import { RBACEngine } from '../rbac_algorithm';
 import {
   writeDefaultRBACRolesPermissions,
   writeDefaultRoleAccountsTables,

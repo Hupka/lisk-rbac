@@ -1,12 +1,7 @@
 import { Account } from '@liskhq/lisk-chain';
 import { isHexString } from '@liskhq/lisk-validator';
-import {
-  BaseModuleDataAccess
-} from 'lisk-sdk';
-import {
-  RBACAccountProps,
-  RBACAccountRoleItem
-} from '../schemas';
+import { BaseModuleDataAccess } from 'lisk-sdk';
+import { RBACAccountProps, RBACAccountRoleItem } from '../schemas';
 
 export const getAccountRolesAction = async (address: string | Buffer, chainGetter: BaseModuleDataAccess): Promise<RBACAccountRoleItem[]> => {
   if (typeof address === 'string' && !isHexString(address)) {

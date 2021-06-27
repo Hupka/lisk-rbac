@@ -27,7 +27,7 @@ import {
   afterBlockApplyLifecycleHook,
   afterGenesisBlockApplyLifecycleHook
 } from './lifecycle_hooks';
-import RBAC from './rbac-algorithm/algorithm';
+import { RBACEngine } from './rbac_algorithm';
 import {
   rbacAccountPropsSchema,
   RBACAccountRoleItem
@@ -67,8 +67,14 @@ export class RbacModule extends BaseModule {
 
   public accountSchema = rbacAccountPropsSchema;
 
-  private RBACSolver: RBAC = new RBAC;
-  private readonly assetIDsRequiringRBACReload = [1, 2, 3, 4, 5];
+  private RBACSolver: RBACEngine = new RBACEngine;
+  private readonly assetIDsRequiringRBACReload: number[] = [
+    1, /* CreateRoleAsset */
+    2, /* UpdateRoleAsset */
+    3, /* DeleteRoleAsset */
+    4, /* AssociatePermissionsAsset */
+    5  /* RemovePermissionsAsset */
+  ];
 
   public constructor(genesisConfig: GenesisConfig) {
     super(genesisConfig);

@@ -1,5 +1,5 @@
 import { AfterBlockApplyContext } from 'lisk-sdk';
-import { RBACEngine } from '../rbac-algorithm/algorithm';
+import { RBACEngine } from '../rbac_algorithm';
 import {
   readRBACPermissionsObject,
   readRBACRolesObject,

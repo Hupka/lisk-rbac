@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { flatten, mergeRoles } from './algorithm-utils';
+import { flatten, mergeRoles } from './algorithm_utils';
 
 const SEPARATOR = ':';
 

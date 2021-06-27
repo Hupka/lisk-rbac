@@ -1,12 +1,6 @@
-import {
-  BaseModuleDataAccess,
-  codec
-} from 'lisk-sdk';
+import { BaseModuleDataAccess, codec } from 'lisk-sdk';
 import { RBAC_RULESET_VERSIONS_STATESTORE_KEY } from '../constants';
-import {
-  RBACRulesetRecord,
-  rbacRulesetRecordSchema
-} from '../schemas';
+import { RBACRulesetRecord, rbacRulesetRecordSchema } from '../schemas';
 
 export const getRulesetByVersionAction = async (version: string, chainGetter: BaseModuleDataAccess): Promise<Record<string, unknown>> => {
   if (!version) {

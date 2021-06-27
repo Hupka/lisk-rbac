@@ -1,15 +1,15 @@
-import { Account } from "@liskhq/lisk-chain"
+import { Account } from "@liskhq/lisk-chain";
 import { RBAC_ROLE_LIFECYCLE_ACTIVE } from "./constants";
-
+import { RBACEngine } from './rbac_algorithm';
 import {
   RBACAccountProps,
   RBACPermissionsProps,
   RBACRolesProps,
   RBACRulesetRecord,
-  RBACRulesetRuleRecord,
-} from "./schemas"
+  RBACRulesetRuleRecord
+} from "./schemas";
 
-import RBAC from './rbac-algorithm/algorithm';
+
 
 export const createRulesetRecord = (
   roleSet: RBACRolesProps,
@@ -42,7 +42,7 @@ export const createRulesetRecord = (
   return ruleset;
 }
 
-export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
+export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBACEngine => {
 
   const loadOptions = {
     roles: {},
@@ -50,7 +50,7 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
 
   ruleset.roles.forEach(element => {
     // only add roles which have are in lifecycle=active state
-    if(element.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE){
+    if (element.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE) {
       if (element.role.inheritance) {
         // validate which inherited roles are 'active', only load these
         const activeRuleInheritance = element.role.inheritance.filter(elem => ruleset.roles.find(x => x.role.id === elem)?.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE)
@@ -66,20 +66,20 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
       }
     }
   });
-  
-  return new RBAC(loadOptions, ruleset.version);
+
+  return new RBACEngine(loadOptions, ruleset.version);
 }
 
 export const hasPermissionSolver = (
-  account: Account<RBACAccountProps>, 
-  resource: string, 
+  account: Account<RBACAccountProps>,
+  resource: string,
   operation: string,
-  solver: RBAC
-  ): boolean => {
-    for (const role of account.rbac.roles) {
-      if (solver.can(role.id, resource, operation)) {
-        return true;
-      }
+  solver: RBACEngine
+): boolean => {
+  for (const role of account.rbac.roles) {
+    if (solver.can(role.id, resource, operation)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }

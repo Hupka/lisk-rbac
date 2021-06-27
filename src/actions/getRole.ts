@@ -1,15 +1,6 @@
-import {
-  BaseModuleDataAccess,
-  codec
-} from 'lisk-sdk';
+import { BaseModuleDataAccess, codec } from 'lisk-sdk';
 import { RBAC_ROLES_STATESTORE_KEY } from '../constants';
-import {
-  rbacRoleRecordSchema,
-  RBACRolesProps,
-  rbacRolesPropsSchema
-} from '../schemas';
-
-
+import { rbacRoleRecordSchema, RBACRolesProps, rbacRolesPropsSchema } from '../schemas';
 
 export const getRoleAction = async (id: string, chainGetter: BaseModuleDataAccess): Promise<Record<string, unknown>> => {
   const rolesListBuffer = await chainGetter.getChainState(RBAC_ROLES_STATESTORE_KEY);

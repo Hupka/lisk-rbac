@@ -1,12 +1,6 @@
-import {
-  BaseModuleDataAccess,
-  codec
-} from 'lisk-sdk';
+import { BaseModuleDataAccess, codec } from 'lisk-sdk';
 import { RBAC_PERMISSIONS_STATESTORE_KEY } from '../constants';
-import {
-  RBACPermissionsProps,
-  rbacPermissionsPropsSchema
-} from '../schemas';
+import { RBACPermissionsProps, rbacPermissionsPropsSchema } from '../schemas';
 
 export const getPermissionsAction = async (chainGetter: BaseModuleDataAccess): Promise<Record<string, unknown>> => {
   const permissionsBuffer = await chainGetter.getChainState(RBAC_PERMISSIONS_STATESTORE_KEY);
