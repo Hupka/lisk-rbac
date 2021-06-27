@@ -1,12 +1,9 @@
-import { isHexString } from '@liskhq/lisk-validator';
 import {
   AfterBlockApplyContext,
   AfterGenesisBlockApplyContext,
-  BaseModule, 
-  codec, 
-  GenesisConfig,
-  StateStore
+  BaseModule, GenesisConfig
 } from 'lisk-sdk';
+import { getAccountRolesAction, getActiveRulesetAction, getPermissionsAction, getRoleAccountsAction, getRoleAction, getRolesAction, getRulesetByVersionAction, hasPermissionAction } from './actions';
 import {
   AssignRoleMembershipAsset,
   AssociatePermissionsAsset,
@@ -18,13 +15,7 @@ import {
 } from './assets';
 import {
   DEFAULT_PERMISSIONS,
-  DEFAULT_ROLES,
-  RBAC_PERMISSIONS_STATESTORE_KEY,
-  RBAC_ROLES_STATESTORE_KEY,
-  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY,
-  RBAC_ROLE_LIFECYCLE_INACTIVE,
-  RBAC_RULESET_STATESTORE_KEY,
-  RBAC_RULESET_VERSIONS_STATESTORE_KEY
+  DEFAULT_ROLES
 } from './constants';
 import RBAC from './rbac-algorithm/algorithm';
 import {
@@ -40,167 +31,30 @@ import {
   writeRBACRulesetVersionObject
 } from './rbac_db';
 import {
-  RBACAccountProps,
   rbacAccountPropsSchema,
-  RBACAccountRoleItem,
-  RBACPermissionsProps,
-  rbacPermissionsPropsSchema,
-  rbacRoleRecordSchema,
-  RBACRolesProps,
-  rbacRolesPropsSchema,
-  RBACRuleset,
-  RBACRulesetRecord,
-  rbacRulesetRecordSchema,
-  rbacRulesetSchema,
-  RoleAccounts,
-  roleAccountsSchema
+  RBACAccountRoleItem
 } from './schemas';
 import {
-  createRulesetRecord,
-  hasPermission,
-  loadRBACRuleset
+  createRulesetRecord, loadRBACRuleset
 } from './utils';
 
 export class RbacModule extends BaseModule {
 
   public actions = {
     getSolverRuleset: async (): Promise<Record<string, unknown>> => Promise.resolve(this.RBACSolver.getRules()),
-    getRoles: async (): Promise<Record<string, unknown>> => {
-      const rolesBuffer = await this._dataAccess.getChainState(RBAC_ROLES_STATESTORE_KEY);
-
-      if (!rolesBuffer) {
-        return Promise.reject(new Error("No roles list available in stateStore."));
-      }
-
-      const roles = codec.decode<RBACRolesProps>(rbacRolesPropsSchema, rolesBuffer)
-
-      return Promise.resolve(codec.toJSON(rbacRolesPropsSchema, roles));
-    },
-    getRole: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
-      const { id } = params;
-
-      const rolesListBuffer = await this._dataAccess.getChainState(RBAC_ROLES_STATESTORE_KEY);
-
-      if (!rolesListBuffer) {
-        return Promise.reject(new Error("No roles list available in stateStore."));
-      }
-
-      const rolesList = codec.decode<RBACRolesProps>(rbacRolesPropsSchema, rolesListBuffer)
-
-      // 1. Verify that role with the sent id does exist
-      const roleRecord = rolesList.roles.find(elem => id === elem.id);
-      if (!roleRecord) {
-        throw new Error(`Role with id '${id as string}' does not exist.`);
-      }
-
-      return Promise.resolve(codec.toJSON(rbacRoleRecordSchema, roleRecord));
-    },
-    getRoleAccounts: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
-      const { id } = params;
-
-      // Read current table of accounts per role 
-      const roleAccountsBuffer = await this._dataAccess.getChainState(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${id as string}`);
-
-      // 1. Verify that role with the sent id does exist
-      if (!roleAccountsBuffer) {
-        throw new Error(`Role with id '${id as string}' does not exist.`);
-      }
-
-      const roleAccounts = codec.decode<RoleAccounts>(roleAccountsSchema, roleAccountsBuffer);
-
-      if (roleAccounts.lifecycle === RBAC_ROLE_LIFECYCLE_INACTIVE) {
-        throw new Error(`Role with id '${id as string}' has been removed.`);
-      }
-
-      return Promise.resolve(codec.toJSON(roleAccountsSchema, roleAccounts));
-    },
-    getPermissions: async (): Promise<Record<string, unknown>> => {
-      const permissionsBuffer = await this._dataAccess.getChainState(RBAC_PERMISSIONS_STATESTORE_KEY);
-
-      if (!permissionsBuffer) {
-        return Promise.reject(new Error("No permissions list available in stateStore."));
-      }
-
-      const permissions = codec.decode<RBACPermissionsProps>(rbacPermissionsPropsSchema, permissionsBuffer)
-
-      return Promise.resolve(codec.toJSON(rbacPermissionsPropsSchema, permissions));
-    },
-    getActiveRuleset: async (): Promise<Record<string, unknown>> => {
-      const rulesetBuffer = await this._dataAccess.getChainState(RBAC_RULESET_STATESTORE_KEY);
-
-      if (!rulesetBuffer) {
-        return Promise.reject(new Error("No ruleset available in stateStore."));
-      }
-
-      const ruleset = codec.decode<RBACRuleset>(rbacRulesetSchema, rulesetBuffer)
-
-      return Promise.resolve(codec.toJSON(rbacRulesetRecordSchema, ruleset.ruleset));
-    },
-    getRulesetByVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => {
-      const { version } = params;
-
-      if (!version) {
-        return Promise.reject(new Error("No version provided."));
-      }
-
-      const rulesetBuffer = await this._dataAccess.getChainState(`${RBAC_RULESET_VERSIONS_STATESTORE_KEY}:${version as string}`);
-
-      if (!rulesetBuffer) {
-        return Promise.reject(new Error(`Ruleset version '${version as string}' does not exist.`));
-      }
-
-      const ruleset = codec.decode<RBACRulesetRecord>(rbacRulesetRecordSchema, rulesetBuffer)
-
-      return Promise.resolve(codec.toJSON(rbacRulesetRecordSchema, ruleset));
-    },
-    hasPermission: async (params: Record<string, unknown>): Promise<boolean> => {
-      const { address, resource, operation } = params;
-
-      if (typeof address === 'string' && !isHexString(address)) {
-        throw new Error('Address parameter should be a hex string.');
-      }
-
-      if (typeof resource !== 'string' || typeof operation !== 'string') {
-        throw new Error("Parameters 'resource' and 'operation' need to be of type string");
-      }
-
-      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(Buffer.from(address as string, 'hex'));
-      return hasPermission(account, resource, operation, this.RBACSolver);
-    },
-    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => {
-      const { address } = params;
-
-      if (typeof address === 'string' && !isHexString(address)) {
-        throw new Error('Address parameter should be a hex string.');
-      }
-
-      const account = await this._dataAccess.getAccountByAddress<RBACAccountProps>(Buffer.from(address as string, 'hex'));
-      return account.rbac.roles;
-    }
+    getRoles: async (): Promise<Record<string, unknown>> => getRolesAction(this._dataAccess),
+    getRole: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRoleAction(params.id as string, this._dataAccess),
+    getRoleAccounts: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRoleAccountsAction(params.id as string, this._dataAccess),
+    getPermissions: async (): Promise<Record<string, unknown>> => getPermissionsAction(this._dataAccess),
+    getActiveRuleset: async (): Promise<Record<string, unknown>> => getActiveRulesetAction(this._dataAccess),
+    getRulesetByVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRulesetByVersionAction(params.version as string, this._dataAccess),
+    hasPermission: async (params: Record<string, unknown>): Promise<boolean> => hasPermissionAction(params.address as string, params.resource as string, params.operation as string, this._dataAccess, this.RBACSolver),
+    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => getAccountRolesAction(params.address as string, this._dataAccess)
   };
   public reducers = {
-    getAccountRoles: async (params: Record<string, unknown>, stateStore: StateStore): Promise<RBACAccountRoleItem[]> => {
-      const { address } = params;
-      if (!Buffer.isBuffer(address)) {
-        throw new Error('Address must be a buffer');
-      }
-      const account = await stateStore.account.getOrDefault<RBACAccountProps>(address);
-      return account.rbac.roles;
-    },
-    hasPermission: async (params: Record<string, unknown>, stateStore: StateStore): Promise<boolean> => {
-      const { address, resource, operation } = params;
-
-      if (!Buffer.isBuffer(address)) {
-        throw new Error('Address must be a buffer');
-      }
-
-      if (typeof resource !== 'string' || typeof operation !== 'string') {
-        throw new Error("Parameters 'resource' and 'operation' need to be of type string");
-      }
-
-      const account = await stateStore.account.get<RBACAccountProps>(address);
-      return hasPermission(account, resource, operation, this.RBACSolver);
-    },
+    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => getAccountRolesAction(params.address as Buffer, this._dataAccess),
+    hasPermission: async (params: Record<string, unknown>): Promise<boolean> => hasPermissionAction(params.address as Buffer, params.resource as string, params.operation as string, this._dataAccess, this.RBACSolver),
+    getRole: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRoleAction(params.id as string, this._dataAccess),
   };
 
   public name = 'rbac';

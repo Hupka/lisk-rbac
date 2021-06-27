@@ -70,7 +70,7 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
   return new RBAC(loadOptions, ruleset.version);
 }
 
-export const hasPermission = (
+export const hasPermissionSolver = (
   account: Account<RBACAccountProps>, 
   resource: string, 
   operation: string,
