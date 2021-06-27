@@ -55,64 +55,64 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
     {
       id: "1",
       associatedRoleIds: ["1", "2"],
-      resourceName: "roles",
-      operationName: "read",
+      resource: "roles",
+      operation: "read",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "2",
       associatedRoleIds: ["1"],
-      resourceName: "roles",
-      operationName: "create",
+      resource: "roles",
+      operation: "create",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "3",
       associatedRoleIds: ["1"],
-      resourceName: "roles",
-      operationName: "update",
+      resource: "roles",
+      operation: "update",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "4",
       associatedRoleIds: ["1"],
-      resourceName: "roles",
-      operationName: "delete",
+      resource: "roles",
+      operation: "delete",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "5",
       associatedRoleIds: ["2"],
-      resourceName: "role_membership",
-      operationName: "read",
+      resource: "role_membership",
+      operation: "read",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "6",
       associatedRoleIds: ["2"],
-      resourceName: "role_membership",
-      operationName: "create",
+      resource: "role_membership",
+      operation: "create",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "7",
       associatedRoleIds: ["2"],
-      resourceName: "role_membership",
-      operationName: "delete",
+      resource: "role_membership",
+      operation: "delete",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     },
     {
       id: "8",
       associatedRoleIds: ["3"],
-      resourceName: "rulesets",
-      operationName: "setversion",
+      resource: "rulesets",
+      operation: "setversion",
       description: "",
       transactionId: Buffer.from("genesis", "utf-8")
     }

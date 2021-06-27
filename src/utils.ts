@@ -56,12 +56,12 @@ export const loadRBACRuleset = (ruleset: RBACRulesetRecord): RBAC => {
         const activeRuleInheritance = element.role.inheritance.filter(elem => ruleset.roles.find(x => x.role.id === elem)?.role.lifecycle === RBAC_ROLE_LIFECYCLE_ACTIVE)
 
         loadOptions.roles[element.role.id] = {
-          can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+          can: [...element.permissions.map(elem => `${elem.resource}:${elem.operation}`)],
           inherits: [...activeRuleInheritance],
         }
       } else {
         loadOptions.roles[element.role.id] = {
-          can: [...element.permissions.map(elem => `${elem.resourceName}:${elem.operationName}`)],
+          can: [...element.permissions.map(elem => `${elem.resource}:${elem.operation}`)],
         }
       }
     }

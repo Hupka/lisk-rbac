@@ -1,6 +1,6 @@
 export interface PermissionAsset {
-  resourceName: string;
-  operationName: string;
+  resource: string;
+  operation: string;
   description: string;
 }
 
@@ -12,13 +12,13 @@ export interface AssociatePermissionsAssetProps {
 export const permissionAssetSchema = {
   $id: 'rbac/assets/permissions/record',
   type: "object",
-  required: ["resourceName", "operationName", "description"],
+  required: ["resource", "operation", "description"],
   properties: {
-    resourceName: {
+    resource: {
       dataType: "string",
       fieldNumber: 1,
     },
-    operationName: {
+    operation: {
       dataType: "string",
       fieldNumber: 2,
     },

@@ -1,6 +1,6 @@
 export interface PermissionAssetRed {
-  resourceName: string;
-  operationName: string;
+  resource: string;
+  operation: string;
 }
 
 export interface RemovePermissionsAssetProps {
@@ -11,13 +11,13 @@ export interface RemovePermissionsAssetProps {
 export const permissionAssetRedSchema = {
   $id: 'rbac/assets/permissions/redRecord',
   type: "object",
-  required: ["resourceName", "operationName"],
+  required: ["resource", "operation"],
   properties: {
-    resourceName: {
+    resource: {
       dataType: "string",
       fieldNumber: 1,
     },
-    operationName: {
+    operation: {
       dataType: "string",
       fieldNumber: 2,
     }

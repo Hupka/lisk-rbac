@@ -25,11 +25,11 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
     const regex = new RegExp("^[a-zA-Z0-9]{3,64}$");
 
     for (const permission of asset.permissions) {
-      if (!regex.test(permission.resourceName)) {
-        throw new Error(`The resource name in '${permission.resourceName}:${permission.operationName}' is violating at least one rule: min/max length of 3/64 characters, no special characters supported.`);
+      if (!regex.test(permission.resource)) {
+        throw new Error(`The resource name in '${permission.resource}:${permission.operation}' is violating at least one rule: min/max length of 3/64 characters, no special characters supported.`);
       }
-      if (!regex.test(permission.operationName)) {
-        throw new Error(`The operation name in '${permission.resourceName}:${permission.operationName}' is violating at least one rule: min/max length of 3/64 characters, no special characters supported.`);
+      if (!regex.test(permission.operation)) {
+        throw new Error(`The operation name in '${permission.resource}:${permission.operation}' is violating at least one rule: min/max length of 3/64 characters, no special characters supported.`);
       }
     }
   }
@@ -77,7 +77,7 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
 
     // 6. Associate permissions with roles
     for (const permission of asset.permissions) {
-      const permissionIndex = permissionsList.permissions.findIndex(elem => elem.resourceName === permission.resourceName && elem.operationName === permission.operationName)
+      const permissionIndex = permissionsList.permissions.findIndex(elem => elem.resource === permission.resource && elem.operation === permission.operation)
       if (permissionIndex >= 0) {
         permissionsList.permissions[permissionIndex].associatedRoleIds.push(asset.roleId)
         // Remove duplicated associations
@@ -86,8 +86,8 @@ export class AssociatePermissionsAsset extends BaseAsset<AssociatePermissionsAss
         permissionsList.permissions.push({
           id: (permissionsList.latest+1).toString(),
           associatedRoleIds: [asset.roleId],
-          resourceName: permission.resourceName,
-          operationName: permission.operationName,
+          resource: permission.resource,
+          operation: permission.operation,
           transactionId: transaction.id,
           description: permission.description
         })

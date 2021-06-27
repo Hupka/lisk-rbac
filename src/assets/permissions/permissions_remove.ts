@@ -60,15 +60,15 @@ export class RemovePermissionsAsset extends BaseAsset<RemovePermissionsAssetProp
 
     if (defaultRolesList.roles.find(elem => elem.id === asset.roleId)) {
       for (const permission of asset.permissions) {
-        if (defaultPermissionsList.permissions.find(elem => elem.resourceName === permission.resourceName && elem.operationName === permission.operationName)) {
-          throw new Error(`Association of role with id '${asset.roleId}' with '${permission.resourceName}:${permission.operationName}' is a default rule. Default rules can not be updated.`);
+        if (defaultPermissionsList.permissions.find(elem => elem.resource === permission.resource && elem.operation === permission.operation)) {
+          throw new Error(`Association of role with id '${asset.roleId}' with '${permission.resource}:${permission.operation}' is a default rule. Default rules can not be updated.`);
         }
       }
     }
 
     // 5. Remove permission-to-role associations
     for (const permission of asset.permissions) {
-      const permissionIndex = permissionsList.permissions.findIndex(elem => elem.resourceName === permission.resourceName && elem.operationName === permission.operationName)
+      const permissionIndex = permissionsList.permissions.findIndex(elem => elem.resource === permission.resource && elem.operation === permission.operation)
       if (permissionIndex >= 0) {
         const roleIdIndex = permissionsList.permissions[permissionIndex].associatedRoleIds.indexOf(asset.roleId);
         permissionsList.permissions[permissionIndex].associatedRoleIds.splice(roleIdIndex, 1);
