@@ -1,22 +1,22 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext, codec } from 'lisk-sdk';
 
-import { 
-  RBAC_PREFIX, 
-  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY, 
-  RBAC_ROLE_LIFECYCLE_ACTIVE 
+import {
+  RBAC_PREFIX,
+  RBAC_ROLE_ACCOUNTS_STATESTORE_KEY,
+  RBAC_ROLE_LIFECYCLE_ACTIVE
 } from '../../constants';
 
-import { 
-  CreateRoleAssetProps, 
-  createRoleAssetPropsSchema, 
-  RBACRoleRecord, 
-  RoleAccounts, 
-  roleAccountsSchema 
+import {
+  CreateRoleAssetProps,
+  createRoleAssetPropsSchema,
+  RBACRoleRecord,
+  RoleAccounts,
+  roleAccountsSchema
 } from '../../schemas'
 
-import { 
-  readRBACRolesObject, 
-  writeRBACRolesObject 
+import {
+  readRBACRolesObject,
+  writeRBACRolesObject
 } from '../../rbac_db';
 
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
@@ -76,7 +76,14 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       throw new Error("Role already exists in database.");
     }
 
-    // 5. Construct new role record object
+    // 5. Verify that role ids in inheritance array actually exist
+    for (const roleId of asset.inheritance) {
+      if (!rolesList.roles.find(elem => elem.id === roleId)) {
+        throw new Error(`Role with id '${roleId}' is included in inheritance list but does not exist. Role can not be created.`);
+      }
+    }
+
+    // 6. Construct new role record object
     const newRoleId = rolesList.latest + 1;
     const roleRecord: RBACRoleRecord = {
       id: newRoleId.toString(),
@@ -88,7 +95,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       minAccounts: 0
     }
 
-    // 6. Create empty RoleAccounts table
+    // 7. Create empty RoleAccounts table
     const roleAccounts: RoleAccounts = {
       id: roleRecord.id,
       addresses: [],
@@ -96,7 +103,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     }
     await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(roleAccountsSchema, roleAccounts));
 
-    // 7. Write new set of roles to stateStore
+    // 8. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles, roleRecord]
     rolesList.latest = newRoleId;
 

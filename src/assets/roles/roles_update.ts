@@ -77,13 +77,20 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
       throw new Error(`Role with id '${asset.id}' is a default role. Default roles can not be updated.`);
     }
 
-    // 6. Update role item
+    // 6. Verify that role ids in inheritance array actually exist
+    for (const roleId of asset.inheritance) {
+      if (!rolesList.roles.find(elem => elem.id === roleId)) {
+        throw new Error(`Role with id '${roleId}' is included in inheritance list but does not exist. Role can not be updated.`);
+      }
+    }
+
+    // 7. Update role item
     roleRecord.name = asset.name.toLowerCase();
     roleRecord.description = asset.description ? asset.description : "";
     roleRecord.inheritance = asset.inheritance;
     roleRecord.transactionId = transaction.id;
     
-    // 7. Write new set of roles to stateStore
+    // 8. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles.filter(elem => elem.id !== asset.id), roleRecord]
     rolesList.roles = rolesList.roles.sort((a, b)=> parseInt(a.id, 10)-parseInt(b.id, 10));
 
