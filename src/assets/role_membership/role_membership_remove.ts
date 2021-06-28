@@ -15,7 +15,7 @@ import {
 export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAssetProps> {
   public name = 'role_membership:remove';
   public id = 7;
-  public scopes = [{ resource: "role_membership", operation: "delete" }];
+  public scopes = [{ resource: "role_membership", operation: "remove" }];
 
   // Define schema for asset
   public schema = removeRoleMembershipAssetPropsSchema;

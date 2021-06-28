@@ -15,7 +15,7 @@ import {
 export class AssignRoleMembershipAsset extends BaseAsset<AssignRoleMembershipAssetProps> {
   public name = 'role_membership:assign';
   public id = 6;
-  public scopes = [{ resource: "role_membership", operation: "create" }];
+  public scopes = [{ resource: "role_membership", operation: "assign" }];
 
   // Define schema for asset
   public schema = assignRoleMembershipAssetPropsSchema;

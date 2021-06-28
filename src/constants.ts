@@ -80,7 +80,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       id: "4",
       associatedRoleIds: ["2"],
       resource: "role_membership",
-      operation: "create",
+      operation: "assign",
       description: "Grants permission to assign an account a role.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
@@ -88,7 +88,7 @@ export const DEFAULT_PERMISSIONS: RBACPermissionsProps = {
       id: "5",
       associatedRoleIds: ["2"],
       resource: "role_membership",
-      operation: "delete",
+      operation: "remove",
       description: "Grants permission to remove a role from an account.",
       transactionId: Buffer.from("genesis", "utf-8")
     },
