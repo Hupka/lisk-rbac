@@ -9,8 +9,6 @@ import {
   RBACRulesetRuleRecord
 } from "./schemas";
 
-
-
 export const createRulesetRecord = (
   roleSet: RBACRolesProps,
   permissionSet: RBACPermissionsProps,
