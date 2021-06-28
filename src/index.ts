@@ -1,7 +1,19 @@
 import { RbacModule } from './rbac_module';
-import { RbacGetRulesetCommand } from './commands/getRuleset';
+import { 
+  RbacGetAccountRolesCommand, 
+  RbacGetPermissionsCommand, 
+  RbacGetRoleAccountsCommand, 
+  RbacGetRoleCommand, 
+  RbacGetRolesCommand, 
+  RbacHasPermissionCommand
+ } from './commands';
 
 export {
   RbacModule,
-  RbacGetRulesetCommand,
+  RbacGetRoleCommand,
+  RbacGetRolesCommand,
+  RbacGetRoleAccountsCommand,
+  RbacHasPermissionCommand,
+  RbacGetAccountRolesCommand,
+  RbacGetPermissionsCommand,
 }
