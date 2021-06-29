@@ -58,6 +58,7 @@ With a blockchain application and its concept of cheap interconnected nodes prov
   ```
   Out of these number `3` is the Super Admin role which inherits the permission sets of the other two. This account can be used to do both: configure the RBAC engine as well as assign accounts certain roles. 
 * Start the blockchain application and start interacting with the module's actions, reducers and transactions using the general Lisk Framework tooling. 
+* A second way to start is to checkout the repository and execute `npm install` && `npm run start:host` to start a super slim host application which sits in the folder `./test/test-utils`. Once the chain runs, you can visit `http://localhost:4005` to open up Lisk Dashboard an start interacting with the module's apis right away.
 
 A great start is to either use the included commands or adding the Lisk Dashboard plugin to the application and start executing actions and submitting transactions from there. 
 

@@ -21,7 +21,7 @@
     "coverage": "Run tests with coverage details",
     "test": "Run automated test suite",
     "lint": "Lint source & test files",
-    "lint:fix": "Lint source & test files and apply automatical fixes",
+    "lint:fix": "Lint source & test files and apply automatically fixes",
     "lint:sonar": "Lint and output to eslint-report.json",
     "start:host": "Starts a host application used for development"
   },
