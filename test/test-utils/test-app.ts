@@ -1,7 +1,7 @@
-import { Application, configDevnet, genesisBlockDevnet, HTTPAPIPlugin, utils } from 'lisk-sdk';
 import { DashboardPlugin } from '@liskhq/lisk-framework-dashboard-plugin';
-
+import { Application, configDevnet, genesisBlockDevnet, utils } from 'lisk-sdk';
 import { RbacModule } from '../../src/rbac_module';
+
 
 // PATCH genesis block for RBAC module
 const updatedGenesisBlock = utils.objects.mergeDeep({}, genesisBlockDevnet);
@@ -43,22 +43,6 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
     }
   },
   plugins: {
-    httpApi: {
-      port: 4000,
-      whiteList: ['127.0.0.1'],
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT'],
-      },
-      limits: {
-        max: 0,
-        delayMs: 0,
-        delayAfter: 0,
-        windowMs: 60000,
-        headersTimeout: 5000,
-        serverSetTimeout: 20000,
-      },
-    },
     dashboard: {
       applicationUrl: 'ws://localhost:8080/ws',
       port: 4005,
@@ -71,7 +55,6 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
 const app = Application.defaultApplication(updatedGenesisBlock, appConfig);
 
 app.registerModule(RbacModule);
-app.registerPlugin(HTTPAPIPlugin);
 app.registerPlugin(DashboardPlugin);
 
 app.run().catch(console.error);
