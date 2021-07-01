@@ -1,7 +1,10 @@
 <h1> Lisk RBAC Module </h1>
 
-A Fast and Flexible authorization module for blockchains developed with the Lisk SDK.
+A Fast and Flexible authorization standalone-module for blockchain applications developed with the Lisk SDK.
 
+<hr>
+
+**Table of Contents**
 - [What is the Lisk RBAC Module?](#what-is-the-lisk-rbac-module)
 - [Motivation](#motivation)
   - [The Authorization Problem & Blockchain](#the-authorization-problem--blockchain)
@@ -103,6 +106,11 @@ endless focus guilt bronze hold economy bulk parent soon tower cement venue
 
 ## How it actually works
 
+At its core this module contains a very efficient implementation of a solver for RBAC rulesets. This solver is implemented in Typescript and contains a comprehensive suite of well-written automated tests. The project can be found here: https://github.com/SkeLLLa/fast-rbac. In the project included is also a benchmark to show off the solver's performance in various configurations. 
+
+This module at any time stores all the configuration for the RBAC solver on the blockchain. When the node spins up, a certain version of the RBAC ruleset is loaded into the solver and the node can serve all API requests with low latency. Every time a block is confirmed which includes transactions of this module, a new version of a RBAC ruleset is generated and loaded by the solver. 
+
+The main effort for the implementation up until this point was to come up with a good design for the blockchain's `stateStore` to allow a node to efficiently serve various API use cases. As a baseline for the provided use cases inspiration had been taken from the [Auth0 authorization API](https://auth0.com/docs/api/management/v2).
 
 ### Transactions to configure the RBAC rulesets
 
