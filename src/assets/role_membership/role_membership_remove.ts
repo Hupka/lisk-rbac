@@ -83,7 +83,7 @@ export class RemoveRoleMembershipAsset extends BaseAsset<RemoveRoleMembershipAss
       const role = rolesList.roles.find(elem => elem.id === roleId)
       if (!role) {
         // Check if the roles scheduled for being assigned actually exist in the database
-        throw new Error(`The role with id '${roleId}' is unknown. None of the provided roles were assigned.`);
+        throw new Error(`The role with id '${roleId}' is unknown. None of the provided roles were removed.`);
       } else {
         reducedRolesList.push(role);
       }
