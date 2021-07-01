@@ -1,4 +1,29 @@
-# Lisk RBAC Module
+<h1> Lisk RBAC Module </h1>
+
+A Fast and Flexible authorization module for blockchains developed with the Lisk SDK.
+
+- [What is the Lisk RBAC Module?](#what-is-the-lisk-rbac-module)
+- [Motivation](#motivation)
+  - [The Authorization Problem & Blockchain](#the-authorization-problem--blockchain)
+- [Installation](#installation)
+- [Getting into using it](#getting-into-using-it)
+- [How it actually works](#how-it-actually-works)
+  - [Transactions to configure the RBAC rulesets](#transactions-to-configure-the-rbac-rulesets)
+    - [1. CREATE Role](#1-create-role)
+    - [2. UPDATE Role](#2-update-role)
+    - [3. DELETE Role](#3-delete-role)
+    - [4. ASSOCIATE Permissions](#4-associate-permissions)
+    - [5. REMOVE Permissions](#5-remove-permissions)
+  - [Transactions to assign the Role Memberships](#transactions-to-assign-the-role-memberships)
+    - [1. ASSIGN Role Membership](#1-assign-role-membership)
+    - [2. REMOVE Role Membership](#2-remove-role-membership)
+  - [List of Action Snippets examples](#list-of-action-snippets-examples)
+    - [1. HasPermissions Action](#1-haspermissions-action)
+    - [2. GetAccountRoles Action](#2-getaccountroles-action)
+    - [3. GetRole Action](#3-getrole-action)
+    - [4. GetRoles Action](#4-getroles-action)
+    - [5. GetPermissions Action](#5-getpermissions-action)
+    - [6. GetRoleAccounts Action](#6-getroleaccounts-action)
 
 ## What is the Lisk RBAC Module?
 
@@ -22,7 +47,7 @@ The Lisk ecosystem encourages developers to run a custom blockchain to build the
 
 With this module I hope to reduce the barrier of entry for new developers and teams by providing them with a slim & lightweight RBAC implementation to get them going more quickly. 
 
-### Authorization & Blockchain
+### The Authorization Problem & Blockchain
 
 In part the motivation for this project was the hypothesis that *authorization* as an IT challenge might benefit from the characteristics of a blockchain. 
 
@@ -85,7 +110,7 @@ This block of transactions includes all operations to configure roles an their a
 
 Any transactions of this type will trigger a reload of the RBAC solver in the `afterBlockApply` lifecycle hook. Including in this reload is the creation of a new "RBAC ruleset" version that is stored on the blockchain and has the `blockId` attached. 
 
-#### **1. CREATE Role**
+#### 1. CREATE Role
 
 This transaction creates a new role in the database. The module adds additional information to the role, such as the `transactionId` and sets the role's `lifecycle = active`. 
 
@@ -113,7 +138,7 @@ This transaction creates a new role in the database. The module adds additional 
 * Only the following special characters are allowed for role names: `"." "-" "_"`
 * Inheritance accepts role `id`s as strings, e.g. `["1", "2"]`. Roles mentioned in the `inheritance` array need to exist on the blockchain. 
 
-#### **2. UPDATE Role** 
+#### 2. UPDATE Role 
 
 This transaction updates an existing role on the blockchain. 
 
@@ -139,7 +164,7 @@ This transaction updates an existing role on the blockchain.
 * This transaction always updates all the keys `name`, `description` and `inheritance`
 * Default roles can not be updated
 
-#### **3. DELETE Role** 
+#### 3. DELETE Role 
 
 This transaction removes a role from the RBAC solver. It actually keeps the role in the database but setting its `lifecycle = inactive` in case a previous RBAC ruleset wants to be loaded at a later stage. 
 
@@ -160,7 +185,7 @@ This transaction removes a role from the RBAC solver. It actually keeps the role
 **Rules for this transaction:**
 * Default roles can not be deleted.
 
-#### **4. ASSOCIATE Permissions**
+#### 4. ASSOCIATE Permissions
 
 This transaction associates a set of permissions to a role in the database. A permission is a combination of a `resource` and an `operation` to be performed on this resource.
 
@@ -196,7 +221,7 @@ This transaction associates a set of permissions to a role in the database. A pe
 * Submitting a transaction containing the same combination of `resource` and `operation` as an existing permission actually makes this a shared permission between two roles.
 * Permissions can not be added to Default roles.
 
-#### **5. REMOVE Permissions**
+#### 5. REMOVE Permissions
 
 This transaction removes a set of permissions from a role in the database. A permission is a combination of a `resource` and an `operation` to be performed on this resource.
 
@@ -229,7 +254,7 @@ These transactions are expected to be the most often submitted transaction on an
 
 These kinds of transactions do not trigger a reload of the RBAC ruleset.
 
-#### 1. **ASSIGN Role Membership**
+#### 1. ASSIGN Role Membership
 
 This transaction assigns a set of roles to a set of accounts registered on the blockchain. 
 
@@ -258,7 +283,7 @@ This transaction assigns a set of roles to a set of accounts registered on the b
 * At this point, a maximum of 30 addresses and 30 roles can be included in one transaction. This number is chosen arbitrarily and will be adapted later, it had been tested.
 * Only existing roles can be assigned, all attempted assignments of removed roles (`lifecycle = inactive`) will fail.
 
-#### **2. REMOVE Role Membership**
+#### 2. REMOVE Role Membership
 
 This transaction removes a set of roles from a set of accounts registered on the blockchain. Since the Default Roles are crucial to the continuing operation of the blockchain, all of them include a "minimum account number". If any transaction of this type would result in a too low number for `minAccount` it will be discarded.
 
@@ -290,7 +315,7 @@ This transaction removes a set of roles from a set of accounts registered on the
 
 The module contains a set of `Actions`. These include getters for the RBAC configuration as well as the crucial *hasPermission* action to check if an account can actually perform an operation on a given resource.
 
-**1. HasPermissions Action**
+#### 1. HasPermissions Action
 
 Checks if a given account with `address` has the permission to perform `operation` on `resource`. Returns a boolean. 
 
@@ -308,7 +333,7 @@ Checks if a given account with `address` has the permission to perform `operatio
 } // "false"
 ```
 
-**2. GetAccountRoles Action**
+#### 2. GetAccountRoles Action
 
 Returns all roles which are assigned to an account with `address`. 
 
@@ -330,7 +355,7 @@ Returns all roles which are assigned to an account with `address`.
 // }
 ```
 
-**3. GetRole Action**
+#### 3. GetRole Action
 
 Returns on object holding all properties for a registered role. Throws an error if role with `id` does not exist on the chain. Also returns removed roles which have their property `lifecycle = inactive`.
 
@@ -352,7 +377,7 @@ Returns on object holding all properties for a registered role. Throws an error 
 // }
 ```
 
-**4. GetRoles Action**
+#### 4. GetRoles Action
 
 Returns all roles registered on the blockchain. Also returns removed roles which have their property `lifecycle = inactive`.
 
@@ -375,7 +400,7 @@ Returns all roles registered on the blockchain. Also returns removed roles which
 // ]
 ```
 
-**5. GetPermissions Action**
+#### 5. GetPermissions Action
 
 Returns all permissions registered on the blockchain. 
 
@@ -397,7 +422,7 @@ Returns all permissions registered on the blockchain.
 // ]
 ```
 
-**6. GetRoleAccounts Action**
+#### 6. GetRoleAccounts Action
 
 Returns all accounts which have a certain role assigned. Accounts are returned as type `Buffer`
 
