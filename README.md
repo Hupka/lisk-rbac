@@ -32,6 +32,11 @@ A Fast and Flexible authorization standalone-module for blockchain applications 
 
 The Lisk RBAC Module provides a lightweight implementation of role-based access controls for a Lisk blockchain application. This enables any custom application to conveniently integrate a robust and flexible authorization engine to control access to assets stored on the blockchain.
 
+**Project contents**
+* Lisk Module containing 7 transactions, 8 actions, 6 commands, 3 reducers
+* HTTP Rest API plugin, including a [spec file](https://github.com/Hupka/lisk-rbac/blob/main/src/http-api/openapi_spec.yaml) in OpenAPI 3.0 format.
+* Slim demo application including both, module and plugin
+
 **Features:**
 * Define custom sets of roles and permissions for your blockchain application.
 * The module provides actions and reducers to validate every account's permissions. This API is designed to be extremely fast as this can be the Achilles' heel for any scaled-out authorization use case. 
