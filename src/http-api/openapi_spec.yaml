@@ -24,7 +24,7 @@ info:
     url: https://github.com/Hupka/lisk-rbac/blob/main/LICENSE
 
 paths:
-  "/accounts/{address}/hasPermission":
+  "/rbac/accounts/{address}/hasPermission":
     post:
       summary: Check if account has a certain permission
       description:
@@ -58,7 +58,7 @@ paths:
               }
       tags:
         - Accounts
-  "/accounts/{address}/roles":
+  "/rbac/accounts/{address}/roles":
     get:
       summary: Request roles of account
       description: List the the roles associated with an account.
@@ -86,7 +86,7 @@ paths:
                     and role_membership_admin.
       tags:
         - Accounts
-  "/roles/{id}/":
+  "/rbac/roles/{id}/":
     get:
       summary: Request role by id
       description: Search for transaction in the system by ID.
@@ -106,7 +106,7 @@ paths:
                 description: Role has permissions to change the RBAC ruleset.
       tags:
         - Roles
-  "/roles":
+  "/rbac/roles":
     get:
       summary: Request roles
       description: Search for transaction in the system by ID.
@@ -144,7 +144,7 @@ paths:
                     and role_membership_admin.
       tags:
         - Roles
-  "/roles/{id}/accounts":
+  "/rbac/roles/{id}/accounts":
     get:
       summary: Request accounts per role
       description: List all accounts which have role of `id` assigned.
@@ -168,7 +168,7 @@ paths:
                 - address: 9cabee3d27426676b852ce6b804cb2fdff7cd0b5
       tags:
         - Roles
-  "/permissions":
+  "/rbac/permissions":
     get:
       summary: Request permissions
       description: Search for transaction in the system by ID.
