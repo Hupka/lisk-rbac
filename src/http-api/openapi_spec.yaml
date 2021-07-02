@@ -1,0 +1,288 @@
+---
+openapi: 3.0.0
+servers:
+  - url: http://127.0.0.1:4000
+    description: "localhost"
+info:
+  version: 1.0.0
+  title: Lisk RBAC Module HTTP API Documentation
+  description:
+    "# Lisk RBAC Module\n\nThe Lisk RBAC Module provides a lightweight
+    implementation of role-based access controls for a Lisk blockchain application.
+    This enables any custom application to conveniently integrate a robust and flexible
+    authorization engine to control access to assets stored on the blockchain.\n\nThis
+    document describe the HTTP Rest API interface of the Lisk module. The capabilities
+    provided by the interface are similar to [Auth0](https://auth0.com/).  \n\n##
+    List of endpoints\nAll possible API endpoints for Lisk RBAC are listed below.\nClick
+    on an endpoint to show the descriptions, details and examples."
+  contact:
+    name: Lisk RBAC Module
+    url: https://github.com/Hupka/lisk-rbac
+
+  license:
+    name: MIT License
+    url: https://github.com/Hupka/lisk-rbac/blob/main/LICENSE
+
+paths:
+  "/accounts/{address}/hasPermission":
+    post:
+      summary: Check if account has a certain permission
+      description:
+        Submitting a permission string consisting of a `resource` and an
+        `operation` identifier checks whether the account has said permission.
+      parameters:
+        - "$ref": "#/components/parameters/address"
+      responses:
+        "200":
+          description: Check Permission of Devnet Account
+          content:
+            application/json:
+              schema: 
+                type: boolean
+      requestBody:
+        description:
+          Submitting a permission string consisting of a `resource` and
+          an `operation` identifier checks whether the account has said permission.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              example:
+                resource: ""
+                operation: ""
+            example: |-
+              {
+                  "resource": "",
+                  "operation": ""
+              }
+      tags:
+        - Accounts
+  "/accounts/{address}/roles":
+    get:
+      summary: Request roles of account
+      description: List the the roles associated with an account.
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: number
+          description: Account's address as HEX string.
+      responses:
+        "200":
+          description: Get roles of Devnet Account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Account_Roles"
+              example:
+                - id: "3"
+                  name: super_admin
+                  description:
+                    Role inherits permissions from the two roles rbac_admin
+                    and role_membership_admin.
+      tags:
+        - Accounts
+  "/roles/{id}/":
+    get:
+      summary: Request role by id
+      description: Search for transaction in the system by ID.
+      operationId: Requestrolebyid
+      parameters:
+        - "$ref": "#/components/parameters/id"
+      responses:
+        "200":
+          description: Get rbac_admin role
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Role"
+              example:
+                id: "1"
+                name: rbac_admin
+                description: Role has permissions to change the RBAC ruleset.
+      tags:
+        - Roles
+  "/roles":
+    get:
+      summary: Request roles
+      description: Search for transaction in the system by ID.
+      operationId: Requestroles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: adipisicing in tempor cupidatat
+          description: "(Required) id of the searching transaction in hex format"
+      responses:
+        "200":
+          description: Get all roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Roles"
+              example:
+                - id: "1"
+                  name: rbac_admin
+                  description: Role has permissions to change the RBAC ruleset.
+                - id: "2"
+                  name: role_membership_admin
+                  description:
+                    Role has permissions to assign and remove roles from
+                    accounts.
+                - id: "3"
+                  name: super_admin
+                  description:
+                    Role inherits permissions from the two roles rbac_admin
+                    and role_membership_admin.
+      tags:
+        - Roles
+  "/roles/{id}/accounts":
+    get:
+      summary: Request accounts per role
+      description: List all accounts which have role of `id` assigned.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+          description: Role id
+      responses:
+        "200":
+          description: Get all accounts of 'rbac_admin'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Role_Accounts"
+              example:
+                - address: 9cabee3d27426676b852ce6b804cb2fdff7cd0b5
+      tags:
+        - Roles
+  "/permissions":
+    get:
+      summary: Request permissions
+      description: Search for transaction in the system by ID.
+      operationId: Requestpermissions
+      parameters: []
+      responses:
+        "200":
+          description: Get all permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Permissions"
+              example:
+                - resource: roles
+                  operation: create
+                  description: Grants permission to create new roles.
+                - resource: roles
+                  operation: update
+                  description:
+                    Grants permission to update existing roles. This includes
+                    adding and removing permissions from roles.
+                - resource: roles
+                  operation: delete
+                  description: Grants permission to delete existing roles.
+                - resource: role_membership
+                  operation: assign
+                  description: Grants permission to assign an account a role.
+                - resource: role_membership
+                  operation: remove
+                  description: Grants permission to remove a role from an account.
+                - resource: rulesets
+                  operation: setversion
+                  description: Grants permission to restore a previous ruleset version.
+      tags:
+        - Permissions
+components:
+  parameters:
+    address:
+      name: address
+      in: path
+      required: true
+      schema:
+        type: number
+      description: Account's address as HEX string.
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: number
+      description: Role id
+  schemas:
+    "Roles":
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: "Role id"
+          name:
+            type: string
+            description: "Role name"
+          description:
+            type: string
+            description: "Role description"
+    "Account_Roles":
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: "Role id"
+          name:
+            type: string
+            description: "Role name"
+          description:
+            type: string
+            description: "Role description"
+    "Role":
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Role id"
+        name:
+          type: string
+          description: "Role name"
+        description:
+          type: string
+          description: "Role description"
+    "Role_Accounts":
+      type: array
+      items:
+        type: object
+        properties:
+          address:
+            type: string
+            description: "Account address as HEX string"
+    "Permissions":
+      type: array
+      items:
+        type: object
+        properties:
+          resource:
+            type: string
+            description: "Resource identifier of permissions string"
+          operation:
+            type: string
+            description: "Operation identifier of permissions string"
+          description:
+            type: string
+            description: "Permission description"
+

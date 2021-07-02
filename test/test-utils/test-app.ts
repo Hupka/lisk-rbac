@@ -1,6 +1,6 @@
 import { DashboardPlugin } from '@liskhq/lisk-framework-dashboard-plugin';
 import { Application, configDevnet, genesisBlockDevnet, utils } from 'lisk-sdk';
-import { RbacModule } from '../../src/rbac_module';
+import { RbacModule, RBACAPIPlugin } from '../../src';
 
 
 // PATCH genesis block for RBAC module
@@ -56,5 +56,6 @@ const app = Application.defaultApplication(updatedGenesisBlock, appConfig);
 
 app.registerModule(RbacModule);
 app.registerPlugin(DashboardPlugin);
+app.registerPlugin(RBACAPIPlugin);
 
 app.run().catch(console.error);

@@ -1,4 +1,5 @@
 import { RbacModule } from './rbac_module';
+import { RBACAPIPlugin } from './http-api';
 import { 
   RbacGetAccountRolesCommand, 
   RbacGetPermissionsCommand, 
@@ -10,6 +11,7 @@ import {
 
 export {
   RbacModule,
+  RBACAPIPlugin,
   RbacGetRoleCommand,
   RbacGetRolesCommand,
   RbacGetRoleAccountsCommand,
