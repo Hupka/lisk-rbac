@@ -31,7 +31,12 @@ paths:
         Submitting a permission string consisting of a `resource` and an
         `operation` identifier checks whether the account has said permission.
       parameters:
-        - "$ref": "#/components/parameters/address"
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Account's address as HEX string.
       responses:
         "200":
           description: Check Permission of Devnet Account
@@ -67,7 +72,7 @@ paths:
           in: path
           required: true
           schema:
-            type: number
+            type: string
           description: Account's address as HEX string.
       responses:
         "200":
@@ -90,9 +95,13 @@ paths:
     get:
       summary: Request role by id
       description: Search for transaction in the system by ID.
-      operationId: Requestrolebyid
       parameters:
-        - "$ref": "#/components/parameters/id"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Role id.
       responses:
         "200":
           description: Get rbac_admin role
@@ -110,15 +119,6 @@ paths:
     get:
       summary: Request roles
       description: Search for transaction in the system by ID.
-      operationId: Requestroles
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            example: adipisicing in tempor cupidatat
-          description: "(Required) id of the searching transaction in hex format"
       responses:
         "200":
           description: Get all roles
@@ -153,7 +153,7 @@ paths:
           in: path
           required: true
           schema:
-            type: number
+            type: string
           description: Role id
       responses:
         "200":
