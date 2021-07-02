@@ -17,10 +17,10 @@ A Fast and Flexible authorization standalone-module for blockchain applications 
     - [3. DELETE Role](#3-delete-role)
     - [4. ASSOCIATE Permissions](#4-associate-permissions)
     - [5. REMOVE Permissions](#5-remove-permissions)
-  - [Transactions to assign the Role Memberships](#transactions-to-assign-the-role-memberships)
+  - [Transactions to manage Role Memberships](#transactions-to-manage-role-memberships)
     - [1. ASSIGN Role Membership](#1-assign-role-membership)
     - [2. REMOVE Role Membership](#2-remove-role-membership)
-  - [List of Action Snippets examples](#list-of-action-snippets-examples)
+  - [List of Actions](#list-of-actions)
     - [1. HasPermissions Action](#1-haspermissions-action)
     - [2. GetAccountRoles Action](#2-getaccountroles-action)
     - [3. GetRole Action](#3-getrole-action)
@@ -256,7 +256,7 @@ This transaction removes a set of permissions from a role in the database. A per
 **Rules for this transaction:**
 * Permissions can not be removed from Default roles.
 
-### Transactions to assign the Role Memberships
+### Transactions to manage Role Memberships
 
 These transactions are expected to be the most often submitted transaction on any blockchain including this module. Role memberships are assigned and removed using transactions. It is guaranteed that all transactions submitted within one block are being processed without leading to inconsistencies.
 
@@ -319,7 +319,7 @@ This transaction removes a set of roles from a set of accounts registered on the
 * Default accounts have a `minAccounts` property. Any transaction that would lead to a role being assigned to a too small number of accounts will be discarded.
 * Roles can actually be removed from any of the Default Accounts for the Default roles, *if* the `minAccounts` property is not violated. 
 
-### List of Action Snippets examples
+### List of Actions
 
 The module contains a set of `Actions`. These include getters for the RBAC configuration as well as the crucial *hasPermission* action to check if an account can actually perform an operation on a given resource.
 
@@ -341,6 +341,35 @@ Checks if a given account with `address` has the permission to perform `operatio
 } // "false"
 ```
 
+```Typescript
+// Implementation example of how to invoke the `hasPermission` reducer (which shared the logic with the `hasPermission` action): 
+const accountAddress = Buffer.from("d04699e57c4a3846c988f3c15306796f8eae5c1c", 'hex')
+const permissions = [
+    { resource: "roles", operation: "create" },
+    { resource: "roles", operation: "update" },
+    { resource: "roles", operation: "delete" }
+  ];
+
+// 1. Verify that sender has ALL necessary permission to perform transaction
+const hasPermission: boolean[] = [];
+for (const permission of permissions) {
+  if (await reducerHandler.invoke(`rbac:hasPermission`, {
+    address: accountAddress,
+    resource: permission.resource,
+    operation: permission.operation
+  }).then((result) => result)) {
+    hasPermission.push(true);
+  } else {
+    hasPermission.push(false);
+  }
+}
+
+// 2. Do nothing when account does not have role with sufficient permission
+if (hasPermission.filter(elem => !elem).length) {
+  throw new Error(`Account '${transaction.accountAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
+}
+```
+
 #### 2. GetAccountRoles Action
 
 Returns all roles which are assigned to an account with `address`. 
@@ -350,17 +379,18 @@ Returns all roles which are assigned to an account with `address`.
 {
   "address": "d04699e57c4a3846c988f3c15306796f8eae5c1c"
 } 
-
+```
+```JSON
 // Result:
-// {
-//   "rbac": [
-//    {
-//      "id": "3",
-//      "name": "super_admin",
-//      "description": "Role inherits permissions from the two roles rbac_admin and role_membership_admin."
-//    }
-//   ]
-// }
+{
+  "rbac": [
+   {
+     "id": "3",
+     "name": "super_admin",
+     "description": "Role inherits permissions from the two roles rbac_admin and role_membership_admin."
+   }
+  ]
+}
 ```
 
 #### 3. GetRole Action
@@ -372,17 +402,18 @@ Returns on object holding all properties for a registered role. Throws an error 
 {
   "id":"1", 
 } 
-
+```
+```JSON
 // Result:
-// {
-//   "id":"1",
-//   "name":"rbac_admin",
-//   "description":"Role has permissions to change the RBAC ruleset",
-//   "transactionId":"<transactionId>",
-//   "inheritance":[],
-//   "lifecycle":"active",
-//   "minAccounts":"1",
-// }
+{
+  "id":"1",
+  "name":"rbac_admin",
+  "description":"Role has permissions to change the RBAC ruleset",
+  "transactionId":"<transactionId>",
+  "inheritance":[],
+  "lifecycle":"active",
+  "minAccounts":"1",
+}
 ```
 
 #### 4. GetRoles Action
@@ -392,20 +423,20 @@ Returns all roles registered on the blockchain. Also returns removed roles which
 ```JSON
 // Action: rbac:getRoles
 {}
-
+```
+```JSON
 // Result:
-// [
-//   {
-//     "id":"1",
-//     "name":"rbac_admin",
-//     "description":"Role has permissions to change the RBAC ruleset",
-//     "transactionId":"<transactionId>",
-//     "inheritance":[],
-//     "lifecycle":"active",
-//     "minAccounts":"1",
-//   },
-//   ...
-// ]
+[
+  {
+    "id":"1",
+    "name":"rbac_admin",
+    "description":"Role has permissions to change the RBAC ruleset",
+    "transactionId":"<transactionId>",
+    "inheritance":[],
+    "lifecycle":"active",
+    "minAccounts":"1",
+  }
+]
 ```
 
 #### 5. GetPermissions Action
@@ -415,19 +446,19 @@ Returns all permissions registered on the blockchain.
 ```JSON
 // Action: rbac:getPermissions
 {}
-
+```
+```JSON
 // Result:
-// [
-//   {
-//     "id": "1",
-//     "associatedRoleIds": ["1"],
-//     "resource": "roles",
-//     "operation": "create",
-//     "description": "Grants permission to create new roles.",
-//     "transactionId": "<transactionId>"
-//   },
-//   ...
-// ]
+[
+  {
+    "id": "1",
+    "associatedRoleIds": ["1"],
+    "resource": "roles",
+    "operation": "create",
+    "description": "Grants permission to create new roles.",
+    "transactionId": "<transactionId>"
+  }
+]
 ```
 
 #### 6. GetRoleAccounts Action
@@ -439,14 +470,16 @@ Returns all accounts which have a certain role assigned. Accounts are returned a
 {
   "id": "3"
 }
+```
 
+```JSON
 // Result:
-// {
-//   "id": "1",
-//   "addresses": [
-//     "<addressAsBuffer>",
-//     "<addressAsBuffer>"
-//   ],
-//   "lifecycle": "active"
-// }
+{
+  "id": "1",
+  "addresses": [
+    "<addressAsBuffer>",
+    "<addressAsBuffer>"
+  ],
+  "lifecycle": "active"
+}
 ```
