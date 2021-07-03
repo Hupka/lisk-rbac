@@ -4,6 +4,7 @@ import { RBACEngine } from './rbac_algorithm';
 import {
   RBACAccountProps,
   RBACPermissionsProps,
+  RBACRoleRecord,
   RBACRolesProps,
   RBACRulesetRecord,
   RBACRulesetRuleRecord
@@ -79,5 +80,23 @@ export const hasPermissionSolver = (
       return true;
     }
   }
+  return false;
+}
+
+export const checkCircularInheritance = (
+  role: RBACRoleRecord,
+  rolesList: { [roleId: string]: RBACRoleRecord },
+  ancestry: string[]
+): boolean => {
+
+  for (const parent of role.inheritance) {
+    if (ancestry.find(elem => elem === parent)) {
+      return true;
+    } 
+    if(checkCircularInheritance(rolesList[parent], rolesList, [...ancestry,role.id])) {
+      return true;
+    }
+  }
+
   return false;
 }

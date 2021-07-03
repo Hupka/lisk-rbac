@@ -18,6 +18,7 @@ import {
   readRBACRolesObject,
   writeRBACRolesObject
 } from '../../rbac_db';
+import { checkCircularInheritance } from '../../utils';
 
 export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
   public name = 'roles:create';
@@ -95,7 +96,16 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
       minAccounts: 0
     }
 
-    // 7. Create empty RoleAccounts table
+    // 7. Check if 'inheritance' would introduce a circular dependency
+    const rolesObj: { [roleId: string]: RBACRoleRecord } = {[roleRecord.id]:roleRecord};
+    for (const role of rolesList.roles) { 
+      rolesObj[role.id] = role; 
+    }
+    if(checkCircularInheritance(roleRecord,rolesObj,[])) {
+      throw new Error(`Role ids in inheritance array would introduce circular dependency.`);
+    }
+
+    // 8. Create empty RoleAccounts table
     const roleAccounts: RoleAccounts = {
       id: roleRecord.id,
       addresses: [],
@@ -103,7 +113,7 @@ export class CreateRoleAsset extends BaseAsset<CreateRoleAssetProps> {
     }
     await stateStore.chain.set(`${RBAC_ROLE_ACCOUNTS_STATESTORE_KEY}:${roleRecord.id}`, codec.encode(roleAccountsSchema, roleAccounts));
 
-    // 8. Write new set of roles to stateStore
+    // 9. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles, roleRecord]
     rolesList.latest = newRoleId;
 

@@ -1,13 +1,14 @@
 import { BaseAsset, ApplyAssetContext, ValidateAssetContext } from 'lisk-sdk';
 
-import { UpdateRoleAssetProps, updateRoleAssetPropsSchema } from '../../schemas'
+import { RBACRoleRecord, UpdateRoleAssetProps, updateRoleAssetPropsSchema } from '../../schemas'
 import { readDefaultRBACRolesObject, readRBACRolesObject, writeRBACRolesObject } from '../../rbac_db';
 import { RBAC_PREFIX } from '../../constants';
+import { checkCircularInheritance } from '../../utils';
 
 export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
   public name = 'roles:update';
   public id = 2;
-  public scopes = [{ resource: "roles", operation: "update"}];
+  public scopes = [{ resource: "roles", operation: "update" }];
 
   // Define schema for asset
   public schema = updateRoleAssetPropsSchema;
@@ -57,11 +58,11 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
     const rolesList = await readRBACRolesObject(stateStore)
 
     if (!rolesList) {
-			throw new Error("ERR: no roles list in database");
+      throw new Error("ERR: no roles list in database");
     }
 
     // 4. Verify that role with the sent id does exist
-    const roleRecord = rolesList.roles.find(elem =>  asset.id === elem.id);
+    const roleRecord = rolesList.roles.find(elem => asset.id === elem.id);
     if (!roleRecord) {
       throw new Error(`Role with id '${asset.id}' does not exist. Role update can not be performed.`);
     }
@@ -89,10 +90,23 @@ export class UpdateRoleAsset extends BaseAsset<UpdateRoleAssetProps> {
     roleRecord.description = asset.description ? asset.description : "";
     roleRecord.inheritance = asset.inheritance;
     roleRecord.transactionId = transaction.id;
-    
-    // 8. Write new set of roles to stateStore
+
+    // 8. Check if 'inheritance' would introduce a circular dependency
+    const rolesObj: { [roleId: string]: RBACRoleRecord } = {
+      [roleRecord.id]: roleRecord
+    };
+    for (const role of rolesList.roles) {
+      if (role.id !== roleRecord.id) {
+        rolesObj[role.id] = role;
+      }
+    }
+    if (checkCircularInheritance(roleRecord, rolesObj, [])) {
+      throw new Error(`Role ids in inheritance array would introduce circular dependency.`);
+    }
+
+    // 9. Write new set of roles to stateStore
     rolesList.roles = [...rolesList.roles.filter(elem => elem.id !== asset.id), roleRecord]
-    rolesList.roles = rolesList.roles.sort((a, b)=> parseInt(a.id, 10)-parseInt(b.id, 10));
+    rolesList.roles = rolesList.roles.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
 
     await writeRBACRolesObject(stateStore, rolesList);
   }
