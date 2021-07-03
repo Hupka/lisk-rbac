@@ -95,6 +95,7 @@ export class RBACAPIPlugin extends BasePlugin {
 		this._app.get('/rbac/roles/:id/permissions', controllers.getRolePermissions(this._channel));
 		this._app.post('/rbac/accounts/:address/hasPermission', controllers.hasPermission(this._channel));
 		this._app.get('/rbac/accounts/:address/roles', controllers.getAccountRoles(this._channel));
+		this._app.get('/rbac/accounts/:address/permissions', controllers.getAccountPermissions(this._channel));
 		this._app.post('/rbac/roles');
 		this._app.delete('/rbac/roles/:id');
 		this._app.patch('/rbac/roles/:id');

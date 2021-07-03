@@ -23,10 +23,12 @@ A Fast and Flexible authorization standalone-module for blockchain applications 
   - [List of Actions](#list-of-actions)
     - [1. HasPermissions Action](#1-haspermissions-action)
     - [2. GetAccountRoles Action](#2-getaccountroles-action)
-    - [3. GetRole Action](#3-getrole-action)
-    - [4. GetRoles Action](#4-getroles-action)
-    - [5. GetPermissions Action](#5-getpermissions-action)
-    - [6. GetRoleAccounts Action](#6-getroleaccounts-action)
+    - [3. GetAccountPermissions Action](#3-getaccountpermissions-action)
+    - [4. GetRole Action](#4-getrole-action)
+    - [5. GetRoles Action](#5-getroles-action)
+    - [6. GetPermissions Action](#6-getpermissions-action)
+    - [7. GetRoleAccounts Action](#7-getroleaccounts-action)
+    - [8. GetRolePermissions Action](#8-getrolepermissions-action)
 
 ## What is the Lisk RBAC Module?
 
@@ -34,8 +36,8 @@ The Lisk RBAC Module provides a lightweight implementation of role-based access 
 
 **Project contents**
 * Lisk Module containing 7 transactions, 8 actions, 6 commands, 3 reducers
-* HTTP Rest API plugin, including a [spec file](https://github.com/Hupka/lisk-rbac/blob/main/src/http-api/openapi_spec.yaml) in OpenAPI 3.0 format.
-* Slim demo application including both, module and plugin
+* HTTP Rest API plugin, including a [spec file](https://github.com/Hupka/lisk-rbac/blob/main/src/http-api/openapi_spec.yaml) in OpenAPI 3.0 format. 
+* Slim demo application including both, `lisk-rbac` module and `lisk-rbac-http-api` plugin.
 
 **Features:**
 * Define custom sets of roles and permissions for your blockchain application.
@@ -398,7 +400,34 @@ Returns all roles which are assigned to an account with `address`.
 }
 ```
 
-#### 3. GetRole Action
+#### 3. GetAccountPermissions Action
+
+Returns all permissions which an account is granted.
+
+```JSON
+// Action: rbac:getAccountPermissions
+{
+  "address": "d04699e57c4a3846c988f3c15306796f8eae5c1c"
+} 
+```
+
+```JSON
+// Result:
+[
+  {
+    "id": "1",
+    "associatedRoleIds": ["1"],
+    "resource": "roles",
+    "operation": "create",
+    "description": "Grants permission to create new roles.",
+    "transactionId": "<transactionId>"
+  },
+  ...,
+  ...
+]
+```
+
+#### 4. GetRole Action
 
 Returns on object holding all properties for a registered role. Throws an error if role with `id` does not exist on the chain. Also returns removed roles which have their property `lifecycle = inactive`.
 
@@ -421,7 +450,7 @@ Returns on object holding all properties for a registered role. Throws an error 
 }
 ```
 
-#### 4. GetRoles Action
+#### 5. GetRoles Action
 
 Returns all roles registered on the blockchain. Also returns removed roles which have their property `lifecycle = inactive`.
 
@@ -444,7 +473,7 @@ Returns all roles registered on the blockchain. Also returns removed roles which
 ]
 ```
 
-#### 5. GetPermissions Action
+#### 6. GetPermissions Action
 
 Returns all permissions registered on the blockchain. 
 
@@ -466,7 +495,7 @@ Returns all permissions registered on the blockchain.
 ]
 ```
 
-#### 6. GetRoleAccounts Action
+#### 7. GetRoleAccounts Action
 
 Returns all accounts which have a certain role assigned. Accounts are returned as type `Buffer`
 
@@ -487,4 +516,29 @@ Returns all accounts which have a certain role assigned. Accounts are returned a
   ],
   "lifecycle": "active"
 }
+```
+
+#### 8. GetRolePermissions Action
+
+Returns all permissions which are granted by a role.
+
+```JSON
+// Action: rbac:getRolePermissions
+{
+  "id": "1"
+}
+```
+
+```JSON
+// Result:
+[
+  {
+    "id": "1",
+    "associatedRoleIds": ["1"],
+    "resource": "roles",
+    "operation": "create",
+    "description": "Grants permission to create new roles.",
+    "transactionId": "<transactionId>"
+  }
+]
 ```

@@ -5,6 +5,7 @@ import {
   GenesisConfig
 } from 'lisk-sdk';
 import {
+  getAccountPermissionsAction,
   getAccountRolesAction, 
   getPermissionsAction,
   getRoleAccountsAction,
@@ -46,7 +47,8 @@ export class RbacModule extends BaseModule {
     // getActiveRuleset: async (): Promise<Record<string, unknown>> => getActiveRulesetAction(this._dataAccess),
     // getRulesetByVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRulesetByVersionAction(params.version as string, this._dataAccess),
     hasPermission: async (params: Record<string, unknown>): Promise<boolean> => hasPermissionAction(params.address as string, params.resource as string, params.operation as string, this._dataAccess, this.RBACSolver),
-    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => getAccountRolesAction(params.address as string, this._dataAccess)
+    getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => getAccountRolesAction(params.address as string, this._dataAccess),
+    getAccountPermissions: async (params: Record<string, unknown>): Promise<RBACPermissionRecord[]> => getAccountPermissionsAction(params.address as string, this._dataAccess, this.RBACSolver)
   };
   public reducers = {
     getAccountRoles: async (params: Record<string, unknown>): Promise<RBACAccountRoleItem[]> => getAccountRolesAction(params.address as Buffer, this._dataAccess),

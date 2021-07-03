@@ -91,34 +91,44 @@ paths:
                     and role_membership_admin.
       tags:
         - Accounts
-  "/rbac/roles/{id}/":
+  "/rbac/accounts/{address}/permissions":
     get:
-      summary: Request role by id
-      description: Search for transaction in the system by ID.
+      summary: Request permissions account is granted
+      description: List the permissions an account is granted.
       parameters:
-        - name: id
+        - name: address
           in: path
           required: true
           schema:
             type: string
-          description: Role id.
+          description: Account's address as HEX string.
       responses:
         "200":
-          description: Get rbac_admin role
+          description: Permissions successfully retrieved.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/Role"
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Account_Permissions"
               example:
-                id: "1"
-                name: rbac_admin
-                description: Role has permissions to change the RBAC ruleset.
+                - resource: roles
+                  operation: create
+                  description: Grants permission to create new roles.
+                - resource: roles
+                  operation: update
+                  description:
+                    Grants permission to update existing roles. This includes
+                    adding and removing permissions from roles.
+                - resource: roles
+                  operation: delete
+                  description: Grants permission to delete existing roles.
       tags:
-        - Roles
+        - Accounts
   "/rbac/roles":
     get:
       summary: Request roles
-      description: Search for transaction in the system by ID.
+      description: Retrieve list of roles that can be assigned to accounts.
       responses:
         "200":
           description: Roles successfully retrieved.
@@ -142,6 +152,30 @@ paths:
                   description:
                     Role inherits permissions from the two roles rbac_admin
                     and role_membership_admin.
+      tags:
+        - Roles
+  "/rbac/roles/{id}/":
+    get:
+      summary: Request role by id
+      description: Retrieve a role.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Role id.
+      responses:
+        "200":
+          description: Get rbac_admin role
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Role"
+              example:
+                id: "1"
+                name: rbac_admin
+                description: Role has permissions to change the RBAC ruleset.
       tags:
         - Roles
   "/rbac/roles/{id}/accounts":
@@ -204,9 +238,8 @@ paths:
         - Roles
   "/rbac/permissions":
     get:
-      summary: Request permissions
-      description: Search for transaction in the system by ID.
-      operationId: Requestpermissions
+      summary: Request all registered permissions
+      description: List of all permissions registered on the blockchain.
       parameters: []
       responses:
         "200":
@@ -319,6 +352,20 @@ components:
           description:
             type: string
             description: "Role description"
+    "Account_Permissions":
+      type: array
+      items:
+        type: object
+        properties:
+          resource:
+            type: string
+            description: "Resource identifier of permissions string"
+          operation:
+            type: string
+            description: "Operation identifier of permissions string"
+          description:
+            type: string
+            description: "Permission description"
     "Permissions":
       type: array
       items:
