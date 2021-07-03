@@ -6,14 +6,14 @@ import {
 } from 'lisk-sdk';
 import {
   getAccountPermissionsAction,
-  getAccountRolesAction, 
+  getAccountRolesAction,
   getPermissionsAction,
   getRoleAccountsAction,
   getRoleAction,
-  getRolesAction, 
+  getRolePermissionsAction,
+  getRolesAction,
   hasPermissionAction
 } from './actions';
-import { getRolePermissionsAction } from './actions/getRolePermissions';
 import {
   AssignRoleMembershipAsset,
   AssociatePermissionsAsset,

@@ -1,6 +1,7 @@
 export * from './getRole'
 export * from './getRoles'
 export * from './getRoleAccounts'
+export * from './getRolePermissions'
 export * from './getPermissions'
 export * from './getActiveRuleset'
 export * from './getRulesetByVersion'
