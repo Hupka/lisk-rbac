@@ -373,7 +373,7 @@ for (const permission of permissions) {
 
 // 2. Do nothing when account does not have role with sufficient permission
 if (hasPermission.filter(elem => !elem).length) {
-  throw new Error(`Account '${transaction.accountAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
+  throw new Error(`Account '${accountAddress.toString('hex')}' does not have sufficient permissions to perform '${this.name}'.`);
 }
 ```
 
