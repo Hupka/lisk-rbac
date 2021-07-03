@@ -27,8 +27,8 @@ export function flatten(
   const walker = (
     child: { [key: string]: any },
     path: Array<string> = []
-  ): any => 
-     Object.assign(
+  ): any =>
+    Object.assign(
       {},
       ...Object.keys(child).map((key) =>
         isValidObject(child[key])
@@ -36,7 +36,7 @@ export function flatten(
           : { [path.concat([key]).join(separator)]: child[key] }
       )
     )
-  ;
+    ;
 
   return { ...walker(object) };
 }

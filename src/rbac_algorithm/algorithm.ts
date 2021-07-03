@@ -14,6 +14,7 @@ export class RBACEngine {
   public readonly version: number;
   private _rules: RBACEngine.RoleRules = {};
   private _rulesCompiled: { [rule: string]: boolean | RBACEngine.WhenFn } = {};
+  private _rolePermissions: { [roleId: string]: string[] } = {};
   private readonly _refs: RBACEngine.Refs = {};
   private readonly _memoize: boolean;
 
@@ -116,6 +117,10 @@ export class RBACEngine {
     return this._rules;
   }
 
+  public getRolePermissions(roleId: string): string[] {
+    return this._rolePermissions[roleId];
+  }
+
   /**
    * Checks if user can perform operation without checking when condition.
    * @public
@@ -209,6 +214,26 @@ export class RBACEngine {
       ...flatten(refsToCompile, SEPARATOR),
       ...flatten(this._rules, SEPARATOR),
     };
+
+    // Introduce HACK to generate table of roles + permissionId array
+    const newRulesCompiled: { [rule: string]: boolean | RBACEngine.WhenFn } = {};
+    const newRolePermissions: {
+      [roleId: string]: string[];
+    } = {};
+    // eslint-disable-next-line no-restricted-syntax
+    for (const permission in this._rulesCompiled) {
+      if (Object.prototype.hasOwnProperty.call(this._rulesCompiled, permission)) {
+        const [roleId, resource, operationAndPermId] = permission.split(SEPARATOR);
+        if(!operationAndPermId){
+          continue;
+        }
+        const [operation, permissionId] = operationAndPermId.split('&');
+        newRolePermissions[roleId] = [...(newRolePermissions[roleId] || []), permissionId];
+        newRulesCompiled[[roleId,resource,operation].join(SEPARATOR)] = this._rulesCompiled[permission];
+      }
+    }
+    this._rulesCompiled = newRulesCompiled;
+    this._rolePermissions = newRolePermissions;
   }
 }
 

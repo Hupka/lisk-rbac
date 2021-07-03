@@ -6,6 +6,7 @@ export * from './assets/permissions/permission_associate'
 export * from './assets/permissions/permission_remove'
 export * from './assets/role_membership/role_membership_remove'
 export * from './assets/role_membership/role_membership_assign'
+export * from './http-api/roles'
 export * from './rbac_db'
 
 export type GenesisAccountsType = {

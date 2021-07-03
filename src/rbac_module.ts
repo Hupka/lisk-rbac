@@ -12,6 +12,7 @@ import {
   getRolesAction, 
   hasPermissionAction
 } from './actions';
+import { getRolePermissionsAction } from './actions/getRolePermissions';
 import {
   AssignRoleMembershipAsset,
   AssociatePermissionsAsset,
@@ -29,7 +30,8 @@ import { RBACEngine } from './rbac_algorithm';
 import {
   GenesisAccountsType,
   rbacAccountPropsSchema,
-  RBACAccountRoleItem
+  RBACAccountRoleItem,
+  RBACPermissionRecord
 } from './schemas';
 
 export class RbacModule extends BaseModule {
@@ -39,6 +41,7 @@ export class RbacModule extends BaseModule {
     getRole: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRoleAction(params.id as string, this._dataAccess),
     getRoles: async (): Promise<Record<string, unknown>> => getRolesAction(this._dataAccess),
     getRoleAccounts: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRoleAccountsAction(params.id as string, this._dataAccess),
+    getRolePermissions: async (params: Record<string, unknown>): Promise<RBACPermissionRecord[]> => getRolePermissionsAction(params.id as string, this._dataAccess, this.RBACSolver),
     getPermissions: async (): Promise<Record<string, unknown>> => getPermissionsAction(this._dataAccess),
     // getActiveRuleset: async (): Promise<Record<string, unknown>> => getActiveRulesetAction(this._dataAccess),
     // getRulesetByVersion: async (params: Record<string, unknown>): Promise<Record<string, unknown>> => getRulesetByVersionAction(params.version as string, this._dataAccess),

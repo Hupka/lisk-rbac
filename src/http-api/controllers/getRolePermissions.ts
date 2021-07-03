@@ -4,9 +4,9 @@
 
 import { NextFunction, Request, Response } from 'express';
 import { BaseChannel } from 'lisk-framework';
-import { HTTPAPIRoleRecord, RBACRoleRecord } from '../../schemas';
+import { HTTPAPIPermissionRecord, RBACPermissionRecord } from '../../schemas';
 
-export const getRole = (channel: BaseChannel) => async (
+export const getRolePermissions = (channel: BaseChannel) => async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -14,13 +14,18 @@ export const getRole = (channel: BaseChannel) => async (
 	const {id} = req.params;
 
 	try {
-		const role = await channel.invoke<RBACRoleRecord>('rbac:getRole', { id });
+		const rbacRolePermissions = await channel.invoke<RBACPermissionRecord[]>('rbac:getRolePermissions', { id });
 
-		res.status(200).json({
-			id: role.id,
-			name: role.name,
-			description: role.description,
-		} as HTTPAPIRoleRecord);
+		const rbacRolePermissionsResponse: HTTPAPIPermissionRecord[] = [];
+		for (const permission of rbacRolePermissions) {
+			rbacRolePermissionsResponse.push({
+				resource: permission.resource,
+				operation: permission.operation,
+				description: permission.description,
+			})
+		}
+
+		res.status(200).send(rbacRolePermissionsResponse);
 	} catch (err) {
 		if ((err as Error).message.startsWith('Role with id')) {
 			res.status(404).send({

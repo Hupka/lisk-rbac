@@ -121,7 +121,7 @@ paths:
       description: Search for transaction in the system by ID.
       responses:
         "200":
-          description: Get all roles
+          description: Roles successfully retrieved.
           content:
             application/json:
               schema:
@@ -157,7 +157,7 @@ paths:
           description: Role id
       responses:
         "200":
-          description: Get all accounts of 'rbac_admin'
+          description: Role accounts successfully retrieved.
           content:
             application/json:
               schema:
@@ -166,6 +166,40 @@ paths:
                   "$ref": "#/components/schemas/Role_Accounts"
               example:
                 - address: 9cabee3d27426676b852ce6b804cb2fdff7cd0b5
+      tags:
+        - Roles
+  "/rbac/roles/{id}/permissions":
+    get:
+      summary: Request permissions granted by role
+      description: List all permissions which are granted by role of `id`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Role id
+      responses:
+        "200":
+          description: Role permissions successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Role_Permissions"
+              example:
+                - resource: roles
+                  operation: create
+                  description: Grants permission to create new roles.
+                - resource: roles
+                  operation: update
+                  description:
+                    Grants permission to update existing roles. This includes
+                    adding and removing permissions from roles.
+                - resource: roles
+                  operation: delete
+                  description: Grants permission to delete existing roles.
       tags:
         - Roles
   "/rbac/permissions":
@@ -223,6 +257,18 @@ components:
         type: number
       description: Role id
   schemas:
+    "Role":
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Role id"
+        name:
+          type: string
+          description: "Role name"
+        description:
+          type: string
+          description: "Role description"
     "Roles":
       type: array
       items:
@@ -237,6 +283,28 @@ components:
           description:
             type: string
             description: "Role description"
+    "Role_Accounts":
+      type: array
+      items:
+        type: object
+        properties:
+          address:
+            type: string
+            description: "Account address as HEX string"
+    "Role_Permissions":
+      type: array
+      items:
+        type: object
+        properties:
+          resource:
+            type: string
+            description: "Resource identifier of permissions string"
+          operation:
+            type: string
+            description: "Operation identifier of permissions string"
+          description:
+            type: string
+            description: "Permission description"
     "Account_Roles":
       type: array
       items:
@@ -251,26 +319,6 @@ components:
           description:
             type: string
             description: "Role description"
-    "Role":
-      type: object
-      properties:
-        id:
-          type: string
-          description: "Role id"
-        name:
-          type: string
-          description: "Role name"
-        description:
-          type: string
-          description: "Role description"
-    "Role_Accounts":
-      type: array
-      items:
-        type: object
-        properties:
-          address:
-            type: string
-            description: "Account address as HEX string"
     "Permissions":
       type: array
       items:

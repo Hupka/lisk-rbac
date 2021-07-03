@@ -4,13 +4,7 @@
 
 import { NextFunction, Request, Response } from 'express';
 import { BaseChannel } from 'lisk-framework';
-import { RBACPermissionsProps } from '../../schemas';
-
-interface getPermissionsResponse {
-	resource: string;
-	operation: string;
-	description: string;
-}
+import { HTTPAPIPermissionRecord, RBACPermissionsProps } from '../../schemas';
 
 export const getPermissions = (channel: BaseChannel) => async (
 	_req: Request,
@@ -20,7 +14,7 @@ export const getPermissions = (channel: BaseChannel) => async (
 	try {
 		const rbacPermissions = await channel.invoke<RBACPermissionsProps>('rbac:getPermissions');
 
-		const rbacPermissionsResponse: getPermissionsResponse[] = [];
+		const rbacPermissionsResponse: HTTPAPIPermissionRecord[] = [];
 		for (const permission of rbacPermissions.permissions) {
 			rbacPermissionsResponse.push({
 				resource: permission.resource,
