@@ -23,7 +23,7 @@ export const getRoles = (channel: BaseChannel) => async (
 		const rbacRolesResponse: getRolesResponse[] = [];
 		for (const role of rbacRoles.roles) {
 			rbacRolesResponse.push({
-				id: role.name,
+				id: role.id,
 				name: role.name,
 				description: role.description,
 			})
