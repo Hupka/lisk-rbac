@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { isHexString } from '@liskhq/lisk-validator';
 import { NextFunction, Request, Response } from 'express';
 import { BaseChannel } from 'lisk-framework';
-import { RBACRolesProps } from '../../schemas';
+import { RBACRoleRecord, RBACRolesProps } from '../../schemas';
 
 interface RBACAccountRoleItem {
 	id: string;
@@ -20,6 +19,7 @@ export const getAccountRoles = (channel: BaseChannel) => async (
 	next: NextFunction,
 ): Promise<void> => {
 	const accountAddress = req.params.address;
+	const { fields } = req.query
 
 	if (!isHexString(accountAddress)) {
 		res.status(400).send({
@@ -32,16 +32,31 @@ export const getAccountRoles = (channel: BaseChannel) => async (
 		const accountRolesResponse = await channel.invoke<RBACAccountRoleItem[]>('rbac:getAccountRoles', { address: accountAddress, });
 		const rbacRoles = await channel.invoke<RBACRolesProps>('rbac:getRoles');
 
-		const accountRoles: GetAccountRolesResponse[] = [];
-		for (const role of accountRolesResponse) {
-			accountRoles.push({
-				id: role.id,
-				name: role.name,
-				description: rbacRoles.roles.find(elem => elem.id === role.id)?.description ?? ""
-			})
+		if (fields && fields === "full") {
+			const accountRoles: RBACRoleRecord[] = [];
+
+			for (const accountRole of accountRolesResponse) {
+				const role = rbacRoles.roles.find(elem => elem.id === accountRole.id)
+				if (role) {
+					accountRoles.push(role)
+				}
+
+			}
+
+			res.status(200).send(accountRoles);
+		} else {
+			const accountRoles: GetAccountRolesResponse[] = [];
+			for (const role of accountRolesResponse) {
+				accountRoles.push({
+					id: role.id,
+					name: role.name,
+					description: rbacRoles.roles.find(elem => elem.id === role.id)?.description ?? ""
+				})
+			}
+
+			res.status(200).send(accountRoles);
 		}
 
-		res.status(200).send(accountRoles);
 	} catch (err) {
 		if ((err as Error).message.startsWith('Specified key accounts:address')) {
 			res.status(404).send({

@@ -13,6 +13,7 @@ export const getAccountPermissions = (channel: BaseChannel) => async (
 	next: NextFunction,
 ): Promise<void> => {
 	const accountAddress = req.params.address;
+	const { fields } = req.query
 
 	if (!isHexString(accountAddress)) {
 		res.status(400).send({
@@ -24,16 +25,20 @@ export const getAccountPermissions = (channel: BaseChannel) => async (
 	try {
 		const accountPermissions = await channel.invoke<RBACPermissionRecord[]>('rbac:getAccountPermissions', { address: accountAddress });
 
-		const result: HTTPAPIPermissionRecord[] = [];
-		for (const permission of accountPermissions) {
-			result.push({
-				resource: permission.resource,
-				operation: permission.operation,
-				description: permission.description
-			})
-		}
+		if (fields && fields === "full") {
+			res.status(200).send(accountPermissions);
+		} else {
+			const result: HTTPAPIPermissionRecord[] = [];
+			for (const permission of accountPermissions) {
+				result.push({
+					resource: permission.resource,
+					operation: permission.operation,
+					description: permission.description
+				})
+			}
 
-		res.status(200).send(result);
+			res.status(200).send(result);
+		}
 	} catch (err) {
 		if ((err as Error).message.startsWith('Specified key accounts:address')) {
 			res.status(404).send({

@@ -11,21 +11,27 @@ export const getRolePermissions = (channel: BaseChannel) => async (
 	res: Response,
 	next: NextFunction,
 ): Promise<void> => {
-	const {id} = req.params;
+	const { id } = req.params;
+	const { fields } = req.query
 
 	try {
 		const rbacRolePermissions = await channel.invoke<RBACPermissionRecord[]>('rbac:getRolePermissions', { id });
 
-		const rbacRolePermissionsResponse: HTTPAPIPermissionRecord[] = [];
-		for (const permission of rbacRolePermissions) {
-			rbacRolePermissionsResponse.push({
-				resource: permission.resource,
-				operation: permission.operation,
-				description: permission.description,
-			})
+		if (fields && fields === "full") {
+			res.status(200).send(rbacRolePermissions);
+		} else {
+			const rbacRolePermissionsResponse: HTTPAPIPermissionRecord[] = [];
+			for (const permission of rbacRolePermissions) {
+				rbacRolePermissionsResponse.push({
+					resource: permission.resource,
+					operation: permission.operation,
+					description: permission.description,
+				})
+			}
+
+			res.status(200).send(rbacRolePermissionsResponse);
 		}
 
-		res.status(200).send(rbacRolePermissionsResponse);
 	} catch (err) {
 		if ((err as Error).message.startsWith('Role with id')) {
 			res.status(404).send({

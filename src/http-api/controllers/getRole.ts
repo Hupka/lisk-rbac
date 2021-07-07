@@ -11,16 +11,21 @@ export const getRole = (channel: BaseChannel) => async (
 	res: Response,
 	next: NextFunction,
 ): Promise<void> => {
-	const {id} = req.params;
+	const { id } = req.params;
+	const { fields } = req.query
 
 	try {
 		const role = await channel.invoke<RBACRoleRecord>('rbac:getRole', { id });
 
-		res.status(200).json({
-			id: role.id,
-			name: role.name,
-			description: role.description,
-		} as HTTPAPIRoleRecord);
+		if (fields && fields === "full") {
+			res.status(200).send(role);
+		} else {
+			res.status(200).send({
+				id: role.id,
+				name: role.name,
+				description: role.description,
+			} as HTTPAPIRoleRecord);
+		}
 	} catch (err) {
 		if ((err as Error).message.startsWith('Role with id')) {
 			res.status(404).send({

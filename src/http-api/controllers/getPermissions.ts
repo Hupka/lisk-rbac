@@ -7,23 +7,30 @@ import { BaseChannel } from 'lisk-framework';
 import { HTTPAPIPermissionRecord, RBACPermissionsProps } from '../../schemas';
 
 export const getPermissions = (channel: BaseChannel) => async (
-	_req: Request,
+	req: Request,
 	res: Response,
 	next: NextFunction,
 ): Promise<void> => {
+	const { fields } = req.query
+
 	try {
 		const rbacPermissions = await channel.invoke<RBACPermissionsProps>('rbac:getPermissions');
 
-		const rbacPermissionsResponse: HTTPAPIPermissionRecord[] = [];
-		for (const permission of rbacPermissions.permissions) {
-			rbacPermissionsResponse.push({
-				resource: permission.resource,
-				operation: permission.operation,
-				description: permission.description,
-			})
+		if (fields && fields === "full") {
+			res.status(200).send(rbacPermissions.permissions);
+		} else {
+			const rbacPermissionsResponse: HTTPAPIPermissionRecord[] = [];
+			for (const permission of rbacPermissions.permissions) {
+				rbacPermissionsResponse.push({
+					resource: permission.resource,
+					operation: permission.operation,
+					description: permission.description,
+				})
+			}
+
+			res.status(200).send(rbacPermissionsResponse);
 		}
 
-		res.status(200).send(rbacPermissionsResponse);
 	} catch (err) {
 		next(err);
 	}
