@@ -98,6 +98,7 @@ export class RBACAPIPlugin extends BasePlugin {
 		this._app.get('/rbac/permissions', controllers.getPermissions(this._channel));
 		this._app.get('/api/accounts/:address', controllers.getAccountInfo(this._channel, this.codec));
 		this._app.post('/api/transactions', controllers.postTransaction(this._channel, this.codec));
+		this._app.get('/api/nodeinfo', controllers.getNodeInfo(this._channel));
 		this._app.get('/api/transactions', controllers.getTransaction(this._channel, this.codec));
 	}
 }

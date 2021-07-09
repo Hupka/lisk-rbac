@@ -2,6 +2,7 @@ export * from './getRole';
 export * from './getAccountInfo';
 export * from './getAccountRoles';
 export * from './getAccountPermissions';
+export * from './getNodeInfo';
 export * from './getRoles';
 export * from './getPermissions';
 export * from './getRoleAccount';
